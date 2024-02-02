@@ -1,0 +1,11 @@
+{
+  "latest": {
+    "phpVersions": [
+      "8.0"
+    ],
+    "variants": [
+      "apache",
+      "cli"
+    ]
+  }
+}
