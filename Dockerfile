@@ -119,6 +119,7 @@ COPY php-custom.ini "$PHP_INI_DIR/conf.d/zzz-custom-php.ini"
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
+{{ if env.version != "cli" then ( -}}
 RUN set -eux; \
 	docker-php-ext-enable opcache; \
 	{ \
@@ -127,7 +128,7 @@ RUN set -eux; \
 		echo 'opcache.max_accelerated_files=4000'; \
 		echo 'opcache.revalidate_freq=2'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
-
+{{ ) else "" end -}}
 # https://wordpress.org/support/article/editing-wp-config-php/#configure-error-logging
 RUN { \
         # https://www.php.net/manual/en/errorfunc.constants.php
@@ -143,6 +144,7 @@ RUN { \
 		echo 'html_errors = Off'; \
 	} > /usr/local/etc/php/conf.d/error-logging.ini
 
+{{ if env.variant == "apache" then ( -}}
 RUN set -eux; \
 	a2enmod rewrite expires; \
 	\
@@ -161,6 +163,7 @@ RUN set -eux; \
     # https://github.com/docker-library/wordpress/issues/383#issuecomment-507886512
     # (replace all instances of "%h" with "%a" in LogFormat)
 	find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
+{{ ) else "" end -}}
 
 ## Mailer
 RUN echo "sendmail_path=/usr/bin/msmtp -t --read-envelope-from" > /usr/local/etc/php/conf.d/php-sendmail.ini
@@ -177,6 +180,10 @@ RUN set -eux; \
       echo "host $INR_SMTP_HOST"; \
       echo "port $INR_SMTP_PORT"; \
     } > /etc/msmtprc
+
+RUN set -eux; \
+    chmod 755 ${APP_ROOT}; \
+    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT};
 
 USER inr
 WORKDIR ${APP_ROOT}

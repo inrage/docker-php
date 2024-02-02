@@ -133,7 +133,6 @@ RUN set -eux; \
 		echo 'opcache.max_accelerated_files=4000'; \
 		echo 'opcache.revalidate_freq=2'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
-
 # https://wordpress.org/support/article/editing-wp-config-php/#configure-error-logging
 RUN { \
         # https://www.php.net/manual/en/errorfunc.constants.php
@@ -183,6 +182,10 @@ RUN set -eux; \
       echo "host $INR_SMTP_HOST"; \
       echo "port $INR_SMTP_PORT"; \
     } > /etc/msmtprc
+
+RUN set -eux; \
+    chmod 755 ${APP_ROOT}; \
+    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT};
 
 USER inr
 WORKDIR ${APP_ROOT}
