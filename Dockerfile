@@ -38,6 +38,7 @@ RUN set -eux; \
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
+    ghostscript \
 	less \
 	mariadb-client \
     msmtp \
@@ -76,10 +77,12 @@ RUN set -ex; \
 		pdo \
 		pdo_mysql \
 	; \
-    # https://pecl.php.net/package/imagick
+    {{ if env.variant != "cli" then ( -}}
+    # https://pecl.php.net/package/imagick \
 	pecl install imagick-3.6.0; \
 	docker-php-ext-enable imagick; \
 	rm -r /tmp/pear; \
+    {{ ) else "" end -}}
 	\
 	out="$(php -r 'exit(0);')"; \
 	[ -z "$out" ]; \
@@ -119,7 +122,7 @@ COPY php-custom.ini "$PHP_INI_DIR/conf.d/zzz-custom-php.ini"
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
-{{ if env.version != "cli" then ( -}}
+{{ if env.variant != "cli" then ( -}}
 RUN set -eux; \
 	docker-php-ext-enable opcache; \
 	{ \

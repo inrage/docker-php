@@ -44,6 +44,7 @@ RUN set -eux; \
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
+    ghostscript \
 	less \
 	mariadb-client \
     msmtp \
@@ -82,11 +83,7 @@ RUN set -ex; \
 		pdo \
 		pdo_mysql \
 	; \
-    # https://pecl.php.net/package/imagick
-	pecl install imagick-3.6.0; \
-	docker-php-ext-enable imagick; \
-	rm -r /tmp/pear; \
-	\
+    	\
 	out="$(php -r 'exit(0);')"; \
 	[ -z "$out" ]; \
 	err="$(php -r 'exit(0);' 3>&1 1>&2 2>&3)"; \
@@ -125,14 +122,6 @@ COPY php-custom.ini "$PHP_INI_DIR/conf.d/zzz-custom-php.ini"
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
-RUN set -eux; \
-	docker-php-ext-enable opcache; \
-	{ \
-		echo 'opcache.memory_consumption=128'; \
-		echo 'opcache.interned_strings_buffer=8'; \
-		echo 'opcache.max_accelerated_files=4000'; \
-		echo 'opcache.revalidate_freq=2'; \
-	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 # https://wordpress.org/support/article/editing-wp-config-php/#configure-error-logging
 RUN { \
         # https://www.php.net/manual/en/errorfunc.constants.php

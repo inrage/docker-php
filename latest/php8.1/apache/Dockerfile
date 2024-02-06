@@ -44,6 +44,7 @@ RUN set -eux; \
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
+    ghostscript \
 	less \
 	mariadb-client \
     msmtp \
@@ -82,11 +83,11 @@ RUN set -ex; \
 		pdo \
 		pdo_mysql \
 	; \
-    # https://pecl.php.net/package/imagick
+        # https://pecl.php.net/package/imagick \
 	pecl install imagick-3.6.0; \
 	docker-php-ext-enable imagick; \
 	rm -r /tmp/pear; \
-	\
+    	\
 	out="$(php -r 'exit(0);')"; \
 	[ -z "$out" ]; \
 	err="$(php -r 'exit(0);' 3>&1 1>&2 2>&3)"; \
