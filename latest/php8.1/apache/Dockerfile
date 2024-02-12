@@ -67,12 +67,12 @@ RUN set -ex; \
 		libzip-dev \
 	; \
 	\
-	docker-php-ext-configure gd \
+		docker-php-ext-configure gd \
 		--with-freetype \
 		--with-jpeg \
 		--with-webp \
 	; \
-	docker-php-ext-install -j "$(nproc)" \
+    	docker-php-ext-install -j "$(nproc)" \
 		bcmath \
 		exif \
 		gd \

@@ -61,11 +61,19 @@ RUN set -ex; \
 		libzip-dev \
 	; \
 	\
+	{{ if env.phpVersion != "7.2" then ( -}}
 	docker-php-ext-configure gd \
 		--with-freetype \
 		--with-jpeg \
 		--with-webp \
 	; \
+    {{ ) else ( -}}
+   docker-php-ext-configure gd \
+        --with-freetype-dir=/usr \
+        --with-jpeg-dir=/usr \
+        --with-png-dir=/usr \
+    ; \
+    {{ ) end -}}
 	docker-php-ext-install -j "$(nproc)" \
 		bcmath \
 		exif \
