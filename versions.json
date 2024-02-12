@@ -1,6 +1,7 @@
 {
   "latest": {
     "phpVersions": [
+      "7.2",
       "7.4",
       "8.0",
       "8.1",
@@ -9,7 +10,7 @@
     ],
     "variants": [
       "apache",
-      "cli"
+      "fpm"
     ]
   }
 }

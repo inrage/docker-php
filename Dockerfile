@@ -77,12 +77,10 @@ RUN set -ex; \
 		pdo \
 		pdo_mysql \
 	; \
-    {{ if env.variant != "cli" then ( -}}
     # https://pecl.php.net/package/imagick \
 	pecl install imagick-3.6.0; \
 	docker-php-ext-enable imagick; \
 	rm -r /tmp/pear; \
-    {{ ) else "" end -}}
 	\
 	out="$(php -r 'exit(0);')"; \
 	[ -z "$out" ]; \
