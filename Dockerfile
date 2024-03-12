@@ -155,7 +155,7 @@ RUN { \
 
 {{ if env.variant == "apache" then ( -}}
 RUN set -eux; \
-	a2enmod rewrite expires; \
+	a2enmod rewrite expires headers; \
 	\
     # https://httpd.apache.org/docs/2.4/mod/mod_remoteip.html
 	a2enmod remoteip; \

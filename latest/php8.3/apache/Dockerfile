@@ -150,7 +150,7 @@ RUN { \
 	} > /usr/local/etc/php/conf.d/error-logging.ini
 
 RUN set -eux; \
-	a2enmod rewrite expires; \
+	a2enmod rewrite expires headers; \
 	\
     # https://httpd.apache.org/docs/2.4/mod/mod_remoteip.html
 	a2enmod remoteip; \
