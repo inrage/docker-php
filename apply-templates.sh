@@ -46,5 +46,6 @@ for phpVersion in "${phpVersions[@]}"; do
         } > "$dir/Dockerfile"
 
         cp -a php-custom.ini "$dir/"
+        cp -a vhost.conf "$dir/"
     done
 done

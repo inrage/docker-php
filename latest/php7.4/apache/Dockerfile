@@ -188,6 +188,8 @@ RUN set -eux; \
     chmod 755 ${APP_ROOT}; \
     chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT};
 
+COPY vhost.conf /etc/apache2/sites-available/000-default.conf
+
 USER inr
 WORKDIR ${APP_ROOT}
 
