@@ -49,6 +49,7 @@ RUN set -eux; \
 	mariadb-client \
     msmtp \
     msmtp-mta \
+    cron \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
