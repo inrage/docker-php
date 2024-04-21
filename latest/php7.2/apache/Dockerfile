@@ -50,6 +50,8 @@ RUN set -eux; \
     msmtp \
     msmtp-mta \
     cron \
+    wget \
+    vim \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
