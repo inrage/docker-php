@@ -193,6 +193,8 @@ RUN set -eux; \
 
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf
 
+COPY cron-entrypoint.sh /cron-entrypoint.sh
+
 USER inr
 WORKDIR ${APP_ROOT}
 

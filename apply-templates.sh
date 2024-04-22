@@ -47,5 +47,6 @@ for phpVersion in "${phpVersions[@]}"; do
 
         cp -a php-custom.ini "$dir/"
         cp -a vhost.conf "$dir/"
+        cp -a cron-entrypoint.sh "$dir/"
     done
 done
