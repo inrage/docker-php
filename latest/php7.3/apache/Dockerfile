@@ -1,7 +1,13 @@
+#
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
+#
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
+
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:{{ env.phpVersion }}-{{ env.variant }}
+FROM php:7.3-apache
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
@@ -64,20 +70,12 @@ RUN set -ex; \
 		libzip-dev \
 	; \
 	\
-	{{ if env.phpVersion != "7.2" and env.phpVersion != "7.3" then ( -}}
-	docker-php-ext-configure gd \
-		--with-freetype \
-		--with-jpeg \
-		--with-webp \
-	; \
-    {{ ) else ( -}}
-   docker-php-ext-configure gd \
+	   docker-php-ext-configure gd \
         --with-freetype-dir=/usr \
         --with-jpeg-dir=/usr \
         --with-png-dir=/usr \
     ; \
-    {{ ) end -}}
-	docker-php-ext-install -j "$(nproc)" \
+    	docker-php-ext-install -j "$(nproc)" \
 		bcmath \
 		exif \
 		gd \
@@ -131,7 +129,6 @@ COPY php-custom.ini "$PHP_INI_DIR/conf.d/zzz-custom-php.ini"
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
-{{ if env.variant != "cli" then ( -}}
 RUN set -eux; \
 	docker-php-ext-enable opcache; \
 	{ \
@@ -140,7 +137,6 @@ RUN set -eux; \
 		echo 'opcache.max_accelerated_files=4000'; \
 		echo 'opcache.revalidate_freq=2'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
-{{ ) else "" end -}}
 # https://wordpress.org/support/article/editing-wp-config-php/#configure-error-logging
 RUN { \
         # https://www.php.net/manual/en/errorfunc.constants.php
@@ -156,7 +152,6 @@ RUN { \
 		echo 'html_errors = Off'; \
 	} > /usr/local/etc/php/conf.d/error-logging.ini
 
-{{ if env.variant == "apache" then ( -}}
 RUN set -eux; \
 	a2enmod rewrite expires headers; \
 	\
@@ -175,7 +170,6 @@ RUN set -eux; \
     # https://github.com/docker-library/wordpress/issues/383#issuecomment-507886512
     # (replace all instances of "%h" with "%a" in LogFormat)
 	find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
-{{ ) else "" end -}}
 
 ## Mailer
 RUN echo "sendmail_path=/usr/bin/msmtp -t --read-envelope-from" > /usr/local/etc/php/conf.d/php-sendmail.ini
@@ -204,8 +198,4 @@ COPY cron-entrypoint.sh /cron-entrypoint.sh
 USER inr
 WORKDIR ${APP_ROOT}
 
-{{ if env.variant != "cli" then ( -}}
 CMD ["apache2-foreground"]
-{{ ) else ( -}}
-CMD ["php"]
-{{ ) end -}}
