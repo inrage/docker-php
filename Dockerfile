@@ -192,26 +192,18 @@ RUN set -eux; \
 ## Mailer
 RUN echo "sendmail_path=/usr/bin/msmtp -t --read-envelope-from" > /usr/local/etc/php/conf.d/php-sendmail.ini
 
-ARG INR_SMTP_HOST=relay.mailhub
-ARG INR_SMTP_PORT=25
-
-ENV INR_SMTP_HOST=$INR_SMTP_HOST
-ENV INR_SMTP_PORT=$INR_SMTP_PORT
 
 RUN set -eux; \
-    { \
-      echo 'account default'; \
-      echo "host $INR_SMTP_HOST"; \
-      echo "port $INR_SMTP_PORT"; \
-    } > /etc/msmtprc
-
-RUN set -eux; \
+    \
     chmod 755 ${APP_ROOT}; \
     chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT};
+    touch /etc/msmtprc; \
+    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /etc/msmtprc; \
 
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf
 
 COPY cron-entrypoint.sh /cron-entrypoint.sh
+COPY templates /etc/gotpl/
 
 USER inr
 WORKDIR ${APP_ROOT}
