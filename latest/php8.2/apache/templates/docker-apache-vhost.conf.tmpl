@@ -1,6 +1,6 @@
 <VirtualHost *:80>
         ServerAdmin webmaster@localhost
-        DocumentRoot /var/www/html
+        DocumentRoot {{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}
         ServerName default
 
         ErrorLog ${APACHE_LOG_DIR}/error.log
