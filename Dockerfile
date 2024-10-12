@@ -135,10 +135,6 @@ RUN set -ex; \
 	err="$(php --version 3>&1 1>&2 2>&3)"; \
 	[ -z "$err" ]
 
-RUN set -eux; \
-    pecl install redis; \
-    docker-php-ext-enable redis;
-
 # use production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
