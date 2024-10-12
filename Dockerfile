@@ -192,21 +192,30 @@ RUN set -eux; \
 ## Mailer
 RUN echo "sendmail_path=/usr/bin/msmtp -t --read-envelope-from" > /usr/local/etc/php/conf.d/php-sendmail.ini
 
+ARG TARGETPLATFORM
 
 RUN set -eux; \
     \
     chmod 755 ${APP_ROOT}; \
-    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT};
+    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
     touch /etc/msmtprc; \
     chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /etc/msmtprc; \
+    # Download helper scripts.
+    dockerplatform=${TARGETPLATFORM:-linux/amd64}; \
+    dockerplatform=$(echo $dockerplatform | tr '/' '-'); \
+    gotpl_url="https://github.com/wodby/gotpl/releases/download/0.3.3/gotpl-${dockerplatform}.tar.gz"; \
+    wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf
 
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
+COPY docker-entrypoint.sh /
 
 USER inr
 WORKDIR ${APP_ROOT}
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 {{ if env.variant != "cli" then ( -}}
 CMD ["apache2-foreground"]

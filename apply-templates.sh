@@ -49,5 +49,6 @@ for phpVersion in "${phpVersions[@]}"; do
         cp -a vhost.conf "$dir/"
         cp -aR templates "$dir/"
         cp -a cron-entrypoint.sh "$dir/"
+        cp -a docker-entrypoint.sh "$dir/"
     done
 done

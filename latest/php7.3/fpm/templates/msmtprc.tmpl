@@ -1,0 +1,11 @@
+defaults
+port {{ getenv "INR_SMTP_PORT" "25" }}
+tls {{ getenv "INR_SMTP_TLS" "off" }}
+{{- if getenv "INR_SMTP_LOG" }}
+logfile {{ getenv "INR_SMTP_LOGFILE" "/proc/self/fd/2" }}
+{{- end }}
+
+account default
+auth {{ getenv "INR_SMTP_AUTH" "off" }}
+host {{ getenv "INR_SMTP_HOST" "relay.mailhub" }}
+add_missing_date_header {{ getenv "INR_SMTP_ADD_MISSING_DATE_HEADER" "on" }}
