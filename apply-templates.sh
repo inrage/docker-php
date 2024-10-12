@@ -45,8 +45,6 @@ for phpVersion in "${phpVersions[@]}"; do
           gawk -f "$jqt" Dockerfile
         } > "$dir/Dockerfile"
 
-        cp -a php-custom.ini "$dir/"
-        cp -a vhost.conf "$dir/"
         cp -aR templates "$dir/"
         cp -a cron-entrypoint.sh "$dir/"
         cp -a docker-entrypoint.sh "$dir/"

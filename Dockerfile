@@ -138,59 +138,16 @@ RUN set -ex; \
 # use production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# apply custom PHP configuration
-COPY php-custom.ini "$PHP_INI_DIR/conf.d/zzz-custom-php.ini"
-
-# set recommended PHP.ini settings
-# see https://secure.php.net/manual/en/opcache.installation.php
 {{ if env.variant != "cli" then ( -}}
 RUN set -eux; \
-	docker-php-ext-enable opcache; \
-	{ \
-		echo 'opcache.memory_consumption=128'; \
-		echo 'opcache.interned_strings_buffer=8'; \
-		echo 'opcache.max_accelerated_files=4000'; \
-		echo 'opcache.revalidate_freq=2'; \
-	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
+	docker-php-ext-enable opcache;
 {{ ) else "" end -}}
-# https://wordpress.org/support/article/editing-wp-config-php/#configure-error-logging
-RUN { \
-        # https://www.php.net/manual/en/errorfunc.constants.php
-        # https://github.com/docker-library/wordpress/issues/420#issuecomment-517839670
-		echo 'error_reporting = E_ERROR | E_WARNING | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_RECOVERABLE_ERROR'; \
-		echo 'display_errors = Off'; \
-		echo 'display_startup_errors = Off'; \
-		echo 'log_errors = On'; \
-		echo 'error_log = /dev/stderr'; \
-		echo 'log_errors_max_len = 1024'; \
-		echo 'ignore_repeated_errors = On'; \
-		echo 'ignore_repeated_source = Off'; \
-		echo 'html_errors = Off'; \
-	} > /usr/local/etc/php/conf.d/error-logging.ini
 
 {{ if env.variant == "apache" then ( -}}
 RUN set -eux; \
-	a2enmod rewrite expires headers; \
-	\
-    # https://httpd.apache.org/docs/2.4/mod/mod_remoteip.html
-	a2enmod remoteip; \
-	{ \
-		echo 'RemoteIPHeader X-Forwarded-For'; \
-        # these IP ranges are reserved for "private" use and should thus *usually* be safe inside Docker
-		echo 'RemoteIPInternalProxy 10.0.0.0/8'; \
-		echo 'RemoteIPInternalProxy 172.16.0.0/12'; \
-		echo 'RemoteIPInternalProxy 192.168.0.0/16'; \
-		echo 'RemoteIPInternalProxy 169.254.0.0/16'; \
-		echo 'RemoteIPInternalProxy 127.0.0.0/8'; \
-	} > /etc/apache2/conf-available/remoteip.conf; \
-	a2enconf remoteip; \
-    # https://github.com/docker-library/wordpress/issues/383#issuecomment-507886512
-    # (replace all instances of "%h" with "%a" in LogFormat)
+	a2enmod rewrite expires headers remoteip; \
 	find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
 {{ ) else "" end -}}
-
-## Mailer
-RUN echo "sendmail_path=/usr/bin/msmtp -t --read-envelope-from" > /usr/local/etc/php/conf.d/php-sendmail.ini
 
 ARG TARGETPLATFORM
 
@@ -199,14 +156,16 @@ RUN set -eux; \
     chmod 755 ${APP_ROOT}; \
     chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
     touch /etc/msmtprc; \
-    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /etc/msmtprc; \
+    chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
+      "${PHP_INI_DIR}/conf.d" \
+      /etc/apache2/sites-available/000-default.conf \
+      /etc/apache2/conf-available \
+      /etc/msmtprc; \
     # Download helper scripts.
     dockerplatform=${TARGETPLATFORM:-linux/amd64}; \
     dockerplatform=$(echo $dockerplatform | tr '/' '-'); \
     gotpl_url="https://github.com/wodby/gotpl/releases/download/0.3.3/gotpl-${dockerplatform}.tar.gz"; \
     wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
-
-COPY vhost.conf /etc/apache2/sites-available/000-default.conf
 
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
