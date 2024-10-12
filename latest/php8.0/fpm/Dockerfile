@@ -129,37 +129,9 @@ RUN set -ex; \
 # use production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# apply custom PHP configuration
-COPY php-custom.ini "$PHP_INI_DIR/conf.d/zzz-custom-php.ini"
-
-# set recommended PHP.ini settings
-# see https://secure.php.net/manual/en/opcache.installation.php
 RUN set -eux; \
-	docker-php-ext-enable opcache; \
-	{ \
-		echo 'opcache.memory_consumption=128'; \
-		echo 'opcache.interned_strings_buffer=8'; \
-		echo 'opcache.max_accelerated_files=4000'; \
-		echo 'opcache.revalidate_freq=2'; \
-	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
-# https://wordpress.org/support/article/editing-wp-config-php/#configure-error-logging
-RUN { \
-        # https://www.php.net/manual/en/errorfunc.constants.php
-        # https://github.com/docker-library/wordpress/issues/420#issuecomment-517839670
-		echo 'error_reporting = E_ERROR | E_WARNING | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_RECOVERABLE_ERROR'; \
-		echo 'display_errors = Off'; \
-		echo 'display_startup_errors = Off'; \
-		echo 'log_errors = On'; \
-		echo 'error_log = /dev/stderr'; \
-		echo 'log_errors_max_len = 1024'; \
-		echo 'ignore_repeated_errors = On'; \
-		echo 'ignore_repeated_source = Off'; \
-		echo 'html_errors = Off'; \
-	} > /usr/local/etc/php/conf.d/error-logging.ini
+	docker-php-ext-enable opcache;
 
-
-## Mailer
-RUN echo "sendmail_path=/usr/bin/msmtp -t --read-envelope-from" > /usr/local/etc/php/conf.d/php-sendmail.ini
 
 ARG TARGETPLATFORM
 
@@ -168,14 +140,16 @@ RUN set -eux; \
     chmod 755 ${APP_ROOT}; \
     chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
     touch /etc/msmtprc; \
-    chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /etc/msmtprc; \
+    chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
+      "${PHP_INI_DIR}/conf.d" \
+      /etc/apache2/sites-available/000-default.conf \
+      /etc/apache2/conf-available \
+      /etc/msmtprc; \
     # Download helper scripts.
     dockerplatform=${TARGETPLATFORM:-linux/amd64}; \
     dockerplatform=$(echo $dockerplatform | tr '/' '-'); \
     gotpl_url="https://github.com/wodby/gotpl/releases/download/0.3.3/gotpl-${dockerplatform}.tar.gz"; \
     wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
-
-COPY vhost.conf /etc/apache2/sites-available/000-default.conf
 
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
