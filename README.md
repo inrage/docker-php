@@ -3,14 +3,14 @@
 ### PHP configuration
 
 | Variable                              | Default                                  |
-| ------------------------------------- | ---------------------------------------- | --------- | ------- | ------------ | -------------- | --------------- | ----------------- | -------------------- |
+| ------------------------------------- | ---------------------------------------- |
 | `PHP_MEMORY_LIMIT`                    | `512M`                                   |
 | `PHP_UPLOAD_MAX_FILESIZE`             | `64M`                                    |
 | `PHP_POST_MAX_SIZE`                   | `64M`                                    |
 | `PHP_MAX_EXECUTION_TIME`              | `600`                                    |
 | `PHP_DEFAULT_SOCKET_TIMEOUT`          | `60`                                     |
 | `PHP_SENDMAIL_PATH`                   | `/usr/bin/msmtp -t --read-envelope-from` |
-| `PHP_ERROR_REPORTING`                 | `E_ERROR                                 | E_WARNING | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_RECOVERABLE_ERROR` |
+| `PHP_ERROR_REPORTING`                 |                                          |
 | `PHP_DISPLAY_ERRORS`                  | `Off`                                    |
 | `PHP_DISPLAY_STARTUP_ERRORS`          | `Off`                                    |
 | `PHP_LOG_ERRORS`                      | `On`                                     |
@@ -35,15 +35,3 @@
 | `INR_SMTP_AUTH`                    | `off`             |
 | `INR_SMTP_HOST`                    | `relay.mailhub`   |
 | `INR_SMTP_ADD_MISSING_DATE_HEADER` | `on`              |
-
-defaults
-port {{ getenv "INR_SMTP_PORT" "25" }}
-tls {{ getenv "INR_SMTP_TLS" "off" }}
-{{- if getenv "INR_SMTP_LOG" }}
-logfile {{ getenv "INR_SMTP_LOGFILE" "/proc/self/fd/2" }}
-{{- end }}
-
-account default
-auth {{ getenv "INR_SMTP_AUTH" "off" }}
-host {{ getenv "INR_SMTP_HOST" "relay.mailhub" }}
-add_missing_date_header {{ getenv "INR_SMTP_ADD_MISSING_DATE_HEADER" "on" }}
