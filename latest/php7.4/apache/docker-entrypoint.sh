@@ -12,6 +12,15 @@ _gotpl() {
     fi
 }
 
+exec_init_scripts() {
+    shopt -s nullglob
+    for f in /docker-entrypoint-init.d/*; do
+        . "$f"
+    done
+    shopt -u nullglob
+}
+
+
 process_templates() {
   _gotpl "docker-php-base.ini.tmpl" "${PHP_INI_DIR}/conf.d/zzz-custom-php.ini"
   _gotpl "docker-php-error.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-error.ini"
@@ -26,4 +35,7 @@ process_templates() {
 
 process_templates
 
-exec "$@"
+exec_init_scripts
+
+
+exec /usr/local/bin/docker-php-entrypoint "${@}"
