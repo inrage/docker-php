@@ -143,6 +143,9 @@ RUN set -eux; \
     chmod 755 ${APP_ROOT}; \
     chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
     touch /etc/msmtprc; \
+    mkdir -p /etc/apache2/sites-available; \
+    touch /etc/apache2/sites-available/000-default.conf; \
+    mkdir -p /etc/apache2/conf-available; \
     chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
       "${PHP_INI_DIR}/conf.d" \
       /etc/apache2/sites-available/000-default.conf \
