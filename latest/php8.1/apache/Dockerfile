@@ -154,7 +154,7 @@ RUN set -eux; \
     # Download helper scripts.
     dockerplatform=${TARGETPLATFORM:-linux/amd64}; \
     dockerplatform=$(echo $dockerplatform | tr '/' '-'); \
-    gotpl_url="https://github.com/wodby/gotpl/releases/download/0.3.3/gotpl-${dockerplatform}.tar.gz"; \
+    gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.0/gotpl-${dockerplatform}.tar.gz"; \
     wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 
 COPY cron-entrypoint.sh /cron-entrypoint.sh
