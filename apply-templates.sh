@@ -23,7 +23,7 @@ generated_warning() {
 version="latest"
 export version
 
-phpVersions="$(jq -r '.[env.version].phpVersions | map(@sh) | join(" ")' versions.json)"
+phpVersions="$(jq -r '.[env.version].phpVersions | map(.folder | @sh) | join(" ")' versions.json)"
 eval "phpVersions=( $phpVersions )"
 
 variants="$(jq -r '.[env.version].variants | map(@sh) | join(" ")' versions.json)"
@@ -31,6 +31,9 @@ eval "variants=( $variants )"
 
 for phpVersion in "${phpVersions[@]}"; do
     export phpVersion
+
+    tag="$(jq -r --arg phpVersion "$phpVersion" '.[env.version].phpVersions[] | select(.folder == $phpVersion) | .tag' versions.json)"
+    export tag
 
     for variant in "${variants[@]}"; do
         export variant

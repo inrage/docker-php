@@ -1,7 +1,7 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:{{ env.phpVersion }}-{{ env.variant }}
+FROM php:{{ env.tag }}-{{ env.variant }}
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
