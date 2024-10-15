@@ -6,6 +6,16 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["php"],
       "matchUpdateTypes": ["patch"]
+    },
+    {
+      "enabled": false,
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["major"]
+    },
+    {
+      "enabled": false,
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor"]
     }
   ]
 }
