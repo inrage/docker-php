@@ -1,21 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:base"],
   "packageRules": [
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["php"],
-      "matchUpdateTypes": ["patch"]
-    },
-    {
-      "enabled": false,
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["major"]
-    },
-    {
-      "enabled": false,
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor"]
+      "matchUpdateTypes": ["patch"],
+      "groupName": "php patch updates"
     }
   ]
 }
