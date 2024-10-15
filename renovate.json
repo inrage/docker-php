@@ -6,6 +6,7 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["php"],
       "matchUpdateTypes": ["patch"],
+      "excludeUpdateTypes": ["minor", "major"],
       "groupName": "php patch updates"
     }
   ]
