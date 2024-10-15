@@ -5,7 +5,7 @@
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["php"],
-      "allowedVersions": "^\\d+\\.\\d+\\.\\d+$"
+      "matchUpdateTypes": ["patch"]
     }
   ]
 }
