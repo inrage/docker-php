@@ -1,12 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
+  "separateMinorPatch": true,
   "packageRules": [
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["php"],
       "matchUpdateTypes": ["patch"],
-      "excludeUpdateTypes": ["minor", "major"],
+      "versionCompatibility": "^(?<version>[^-]+)(?<compatibility>-.*)?$",
       "groupName": "php patch updates"
     }
   ]
