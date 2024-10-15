@@ -21,9 +21,6 @@ for ver in $versions; do
 
   # For each PHP version...
   for version in $php_versions; do
-    # Fetch the corresponding tag
-    tag=$(jq -r --arg phpVersion "$version" ".${ver}.phpVersions[] | select(.folder == \$phpVersion) | .tag" $JSON_FILE)
-    
     # For each variant...
     for variant in $variants; do
       # Build the Dockerfile path
@@ -32,16 +29,16 @@ for ver in $versions; do
       # Construct the Docker tag
       if [[ $variant == "apache" ]]; then
         if [[ $ver == "beta" ]]; then
-          docker_tag="${BASE_DOCKER_TAG}:beta-${tag}"
+          docker_tag="${BASE_DOCKER_TAG}:beta-${version}"
         else
-          docker_tag="${BASE_DOCKER_TAG}:${tag}"
+          docker_tag="${BASE_DOCKER_TAG}:${version}"
         fi
       else
         docker_tag_variant=${variant#apache-}
         if [[ $ver == "beta" ]]; then
-          docker_tag="${BASE_DOCKER_TAG}:beta-${tag}-${docker_tag_variant}"
+          docker_tag="${BASE_DOCKER_TAG}:beta-${version}-${docker_tag_variant}"
         else
-          docker_tag="${BASE_DOCKER_TAG}:${tag}-${docker_tag_variant}"
+          docker_tag="${BASE_DOCKER_TAG}:${version}-${docker_tag_variant}"
         fi
       fi
 
