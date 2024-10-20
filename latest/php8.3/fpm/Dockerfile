@@ -142,11 +142,11 @@ RUN set -eux; \
     touch /etc/msmtprc; \
     mkdir -p /etc/apache2/sites-available; \
     touch /etc/apache2/sites-available/000-default.conf; \
-    mkdir -p /etc/apache2/conf-available; \
+    mkdir -p /etc/apache2/conf-enabled; \
     chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
       "${PHP_INI_DIR}/conf.d" \
       /etc/apache2/sites-available/000-default.conf \
-      /etc/apache2/conf-available \
+      /etc/apache2/conf-enabled \
       /etc/msmtprc; \
     # Download helper scripts.
     dockerplatform=${TARGETPLATFORM:-linux/amd64}; \
