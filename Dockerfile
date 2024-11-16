@@ -173,6 +173,7 @@ RUN set -eux; \
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
 COPY docker-entrypoint.sh /
+COPY bin /usr/local/bin/
 
 USER inr
 WORKDIR ${APP_ROOT}

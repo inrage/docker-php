@@ -35,4 +35,8 @@ process_templates
 
 exec_init_scripts
 
-exec /usr/local/bin/docker-php-entrypoint "${@}"
+if [[ "${1}" == "make" ]]; then
+    exec "${@}" -f /usr/local/bin/actions.mk
+else
+    exec /usr/local/bin/docker-php-entrypoint "${@}"
+fi
