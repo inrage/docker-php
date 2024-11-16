@@ -49,6 +49,7 @@ for phpVersion in "${phpVersions[@]}"; do
         } > "$dir/Dockerfile"
 
         cp -aR templates "$dir/"
+        cp -aR bin "$dir/"
         cp -a cron-entrypoint.sh "$dir/"
         cp -a docker-entrypoint.sh "$dir/"
     done
