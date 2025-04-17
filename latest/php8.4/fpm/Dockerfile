@@ -7,7 +7,7 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:7.3.33-fpm
+FROM php:8.4.6-fpm
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
@@ -71,9 +71,9 @@ RUN set -ex; \
   ; \
   \
   docker-php-ext-configure gd \
-  --with-freetype-dir=/usr \
-  --with-jpeg-dir=/usr \
-  --with-png-dir=/usr \
+  --with-freetype \
+  --with-jpeg \
+  --with-webp \
   ; \
   docker-php-ext-install -j "$(nproc)" \
   bcmath \

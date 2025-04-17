@@ -7,7 +7,7 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:7.3.33-fpm
+FROM php:8.4.6-apache
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
@@ -71,9 +71,9 @@ RUN set -ex; \
   ; \
   \
   docker-php-ext-configure gd \
-  --with-freetype-dir=/usr \
-  --with-jpeg-dir=/usr \
-  --with-png-dir=/usr \
+  --with-freetype \
+  --with-jpeg \
+  --with-webp \
   ; \
   docker-php-ext-install -j "$(nproc)" \
   bcmath \
@@ -124,6 +124,9 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN set -eux; \
   docker-php-ext-enable opcache;
 
+RUN set -eux; \
+  a2enmod rewrite expires headers remoteip; \
+  find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
 
 ARG TARGETPLATFORM
 
