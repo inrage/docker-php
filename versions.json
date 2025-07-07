@@ -8,7 +8,7 @@
       { "folder": "8.1", "tag": "8.1.33" },
       { "folder": "8.2", "tag": "8.2.29" },
       { "folder": "8.3", "tag": "8.3.23" },
-      { "folder": "8.4", "tag": "8.4.8" }
+      { "folder": "8.4", "tag": "8.4.10" }
     ],
     "variants": ["apache", "fpm"]
   }
