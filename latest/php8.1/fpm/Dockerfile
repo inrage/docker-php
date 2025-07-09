@@ -61,6 +61,7 @@ RUN set -ex; \
   \
   apt-get update; \
   apt-get install -y --no-install-recommends \
+  libavif-dev \
   libfreetype6-dev \
   libicu-dev \
   libjpeg-dev \
@@ -71,6 +72,7 @@ RUN set -ex; \
   ; \
   \
   docker-php-ext-configure gd \
+  --with-avif \
   --with-freetype \
   --with-jpeg \
   --with-webp \
