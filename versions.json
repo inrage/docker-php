@@ -1,9 +1,6 @@
 {
   "latest": {
     "phpVersions": [
-      { "folder": "7.2", "tag": "7.2.34" },
-      { "folder": "7.3", "tag": "7.3.33" },
-      { "folder": "7.4", "tag": "7.4.33" },
       { "folder": "8.0", "tag": "8.0.30" },
       { "folder": "8.1", "tag": "8.1.33" },
       { "folder": "8.2", "tag": "8.2.29" },
