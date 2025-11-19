@@ -92,7 +92,7 @@ docker-php-ext-install -j "$(nproc)" \
   ; \
   # NewRelic extension and agent. \
   newrelic_url="http://download.newrelic.com/php_agent/release/"; \
-  wget -r -nd --no-parent -P /tmp/newrelic -Alinux-musl.tar.gz "${newrelic_url}" >/dev/null 2>&1; \
+  wget -r -nd --no-parent -P /tmp/newrelic -Alinux.tar.gz "${newrelic_url}" >/dev/null 2>&1; \
   tar -xzf /tmp/newrelic/newrelic-php*.tar.gz --strip=1 -C /tmp/newrelic; \
   export NR_INSTALL_SILENT=true; \
   export NR_INSTALL_USE_CP_NOT_LN=true; \
