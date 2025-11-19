@@ -90,6 +90,18 @@ docker-php-ext-install -j "$(nproc)" \
   pdo \
   pdo_mysql \
   ; \
+  # NewRelic extension and agent. \
+  newrelic_url="http://download.newrelic.com/php_agent/release/"; \
+  wget -r -nd --no-parent -P /tmp/newrelic -Alinux-musl.tar.gz "${newrelic_url}" >/dev/null 2>&1; \
+  tar -xzf /tmp/newrelic/newrelic-php*.tar.gz --strip=1 -C /tmp/newrelic; \
+  export NR_INSTALL_SILENT=true; \
+  export NR_INSTALL_USE_CP_NOT_LN=true; \
+  bash /tmp/newrelic/newrelic-install install; \
+  rm -f /usr/local/etc/php/conf.d/newrelic.ini; \
+  mkdir -p /var/log/newrelic/; \
+  chown -R www-data:www-data /var/log/newrelic/; \
+  chmod -R 775 /var/log/newrelic/; \
+  \
   # https://pecl.php.net/package/imagick
   pecl install imagick-3.8.0; \
   docker-php-ext-enable imagick; \
@@ -117,7 +129,12 @@ docker-php-ext-install -j "$(nproc)" \
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
   rm -rf /var/lib/apt/lists/*; \
   \
-  ! { ldd "$extDir"/*.so | grep 'not found'; }; \
+  for f in "$extDir"/*.so; do \
+  if ldd "$f" | grep 'not found'; then \
+  echo "Missing shared library dependencies in PHP extensions ($f)"; \
+  exit 1; \
+  fi; \
+  done; \
   # check for output like "PHP Warning:  PHP Startup: Unable to load dynamic library 'foo' (tried: ...)
   err="$(php --version 3>&1 1>&2 2>&3)"; \
   [ -z "$err" ]
@@ -152,8 +169,8 @@ RUN set -eux; \
   /etc/apache2/conf-enabled \
   /etc/msmtprc; \
   # Download helper scripts.
-  dockerplatform=${TARGETPLATFORM:-linux/amd64}; \
-  dockerplatform=$(echo $dockerplatform | tr '/' '-'); \
+  dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
+  dockerplatform=$(printf '%s' "$dockerplatform" | tr '/' '-'); \
   gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.0/gotpl-${dockerplatform}.tar.gz"; \
   wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 

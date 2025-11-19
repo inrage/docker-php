@@ -25,6 +25,8 @@ process_templates() {
   _gotpl "docker-php-error.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-error.ini"
   _gotpl "docker-php-ext-opcache.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini"
 
+  _gotpl "docker-php-ext-newrelic.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-newrelic.ini"
+
   _gotpl "docker-apache-vhost.conf.tmpl" "/etc/apache2/sites-available/000-default.conf"
   _gotpl "docker-apache-remoteip.conf.tmpl" "/etc/apache2/conf-enabled/remoteip.conf"
 
@@ -36,7 +38,7 @@ process_templates
 exec_init_scripts
 
 if [[ "${1}" == "make" ]]; then
-    exec "${@}" -f /usr/local/bin/actions.mk
+  exec "${@}" -f /usr/local/bin/actions.mk
 else
-    exec /usr/local/bin/docker-php-entrypoint "${@}"
+  exec /usr/local/bin/docker-php-entrypoint "${@}"
 fi

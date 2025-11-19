@@ -1,0 +1,7 @@
+ignored:
+  - DL3008 # apt-get install sans pin des versions
+  - DL3046 # UID élevé pour mapper l'UID hôte (1000)
+  - DL4006 # pas de pipefail global, scripts testés
+  - SC2028 # PS1 avec séquences d'échappement littérales
+
+failure-threshold: warning
