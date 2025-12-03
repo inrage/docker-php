@@ -154,6 +154,7 @@ RUN set -eux; \
   mkdir -p /etc/apache2/sites-available; \
   touch /etc/apache2/sites-available/000-default.conf; \
   mkdir -p /etc/apache2/conf-enabled; \
+  mkdir -p /etc/apache2/mods-enabled; \
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
   "${PHP_INI_DIR}/conf.d" \
   /etc/apache2/sites-available/000-default.conf \
