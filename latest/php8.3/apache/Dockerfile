@@ -157,13 +157,14 @@ RUN set -eux; \
   mkdir -p /etc/apache2/sites-available; \
   touch /etc/apache2/sites-available/000-default.conf; \
   mkdir -p /etc/apache2/conf-enabled; \
-  mkdir -p /etc/apache2/mods-enabled; \
+  mkdir -p /etc/apache2/mpm-overrides; \
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
   "${PHP_INI_DIR}/conf.d" \
   /etc/apache2/sites-available/000-default.conf \
   /etc/apache2/conf-enabled \
-  /etc/apache2/mods-enabled \
+  /etc/apache2/mpm-overrides \
   /etc/msmtprc; \
+  echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_prefork.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
   # Download helper scripts.
   dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
   dockerplatform=$(printf '%s' "$dockerplatform" | tr '/' '-'); \

@@ -29,7 +29,7 @@ process_templates() {
 
   _gotpl "docker-apache-vhost.conf.tmpl" "/etc/apache2/sites-available/000-default.conf"
   _gotpl "docker-apache-remoteip.conf.tmpl" "/etc/apache2/conf-enabled/remoteip.conf"
-  _gotpl "docker-apache-prefork.conf.tmpl" "/etc/apache2/mods-enabled/mpm_prefork.conf"
+  _gotpl "docker-apache-prefork.conf.tmpl" "/etc/apache2/mpm-overrides/mpm_prefork.conf"
 
   _gotpl "msmtprc.tmpl" "/etc/msmtprc"
 }
