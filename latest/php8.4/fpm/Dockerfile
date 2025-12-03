@@ -158,6 +158,7 @@ RUN set -eux; \
   "${PHP_INI_DIR}/conf.d" \
   /etc/apache2/sites-available/000-default.conf \
   /etc/apache2/conf-enabled \
+  /etc/apache2/mods-enabled \
   /etc/msmtprc; \
   # Download helper scripts.
   dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
