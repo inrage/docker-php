@@ -1,0 +1,7 @@
+<IfModule mpm_prefork_module>
+    StartServers             {{ getenv "APACHE_MPM_START_SERVERS" "2" }}
+    MinSpareServers          {{ getenv "APACHE_MPM_MIN_SPARE_SERVERS" "2" }}
+    MaxSpareServers          {{ getenv "APACHE_MPM_MAX_SPARE_SERVERS" "4" }}
+    MaxRequestWorkers        {{ getenv "APACHE_MPM_MAX_REQUEST_WORKERS" "6" }}
+    MaxConnectionsPerChild   {{ getenv "APACHE_MPM_MAX_CONNECTIONS_PER_CHILD" "1000" }}
+</IfModule>

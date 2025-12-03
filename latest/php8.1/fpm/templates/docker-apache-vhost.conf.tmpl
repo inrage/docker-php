@@ -6,6 +6,15 @@
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 
+    <Directory "{{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}">
+        AllowOverride All
+
+        Options -Indexes +FollowSymLinks
+        Require all granted
+
+        Options -MultiViews
+    </Directory>
+
     <FilesMatch "^\.">
         Order allow,deny
         Deny from all
@@ -42,5 +51,50 @@
         Order allow,deny
         Deny from all
     </LocationMatch>
+
+    #################################################################
+    # Cache HTTP
+    #################################################################
+    <IfModule mod_expires.c>
+        ExpiresActive On
+
+        ExpiresByType text/css              "access plus 1 year"
+        ExpiresByType application/javascript "access plus 1 year"
+        ExpiresByType application/x-javascript "access plus 1 year"
+        ExpiresByType image/jpeg            "access plus 1 year"
+        ExpiresByType image/png             "access plus 1 year"
+        ExpiresByType image/gif             "access plus 1 year"
+        ExpiresByType image/webp            "access plus 1 year"
+        ExpiresByType image/svg+xml         "access plus 1 year"
+        ExpiresByType font/woff             "access plus 1 year"
+        ExpiresByType font/woff2            "access plus 1 year"
+    </IfModule>
+
+    <IfModule mod_headers.c>
+        <LocationMatch "\.(?:css|js|jpe?g|png|gif|webp|svg|woff2?)$">
+            Header set Cache-Control "public, max-age=31536000, immutable"
+        </LocationMatch>
+
+        <LocationMatch "\.(?:php|html?)$">
+            Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        </LocationMatch>
+    </IfModule>
+
+    #################################################################
+    # Compression
+    #################################################################
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css \
+                               application/javascript application/x-javascript \
+                               application/json application/xml
+
+        # Évite de compresser les binaires
+        SetEnvIfNoCase Request_URI \
+            "\.(?:gif|jpe?g|png|webp|ico|woff2?|zip|gz|bz2|rar)$" no-gzip dont-vary
+    </IfModule>
+
+    SetEnvIf Request_URI "^/wp-cron\.php$" dontlog
+    SetEnvIf Request_URI "^/wp-admin/admin-ajax\.php$" dontlog
+    CustomLog ${APACHE_LOG_DIR}/access.log combined env=!dontlog
 </VirtualHost>
 
