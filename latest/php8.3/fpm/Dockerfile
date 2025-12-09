@@ -84,6 +84,7 @@ RUN set -ex; \
   intl \
   mysqli \
   zip \
+  $(test "${PHP_VERSION:0:3}" != "8.5" && echo 'opcache') \
   soap \
   pdo \
   pdo_mysql \

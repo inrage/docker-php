@@ -24,7 +24,7 @@ process_templates() {
   _gotpl "docker-php-base.ini.tmpl" "${PHP_INI_DIR}/conf.d/zzz-custom-php.ini"
   _gotpl "docker-php-error.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-error.ini"
   _gotpl "docker-php-ext-opcache.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini"
-
+  _gotpl "docker-php-ext-opcache.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini"
   _gotpl "docker-php-ext-newrelic.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-newrelic.ini"
 
   _gotpl "docker-apache-vhost.conf.tmpl" "/etc/apache2/sites-available/000-default.conf"
