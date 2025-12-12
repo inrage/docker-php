@@ -1,0 +1,19 @@
+[www]
+user = inr
+group = inr
+
+listen = /var/run/php/php-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+
+clear_env = no
+
+; Tuning (tu peux ajuster via ENV si tu veux)
+pm = {{ getenv "PHP_FPM_PM" "dynamic" }}
+pm.max_children = {{ getenv "PHP_FPM_PM_MAX_CHILDREN" "20" }}
+pm.start_servers = {{ getenv "PHP_FPM_PM_START_SERVERS" "4" }}
+pm.min_spare_servers = {{ getenv "PHP_FPM_PM_MIN_SPARE_SERVERS" "2" }}
+pm.max_spare_servers = {{ getenv "PHP_FPM_PM_MAX_SPARE_SERVERS" "6" }}
+pm.max_requests = {{ getenv "PHP_FPM_PM_MAX_REQUESTS" "500" }}
+
