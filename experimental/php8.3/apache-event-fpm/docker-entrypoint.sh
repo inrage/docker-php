@@ -15,7 +15,7 @@ _gotpl() {
 exec_init_scripts() {
   shopt -s nullglob
   for f in /docker-entrypoint-init.d/*; do
-    . "$f"
+    su -s /bin/bash inr -c ". $f"
   done
   shopt -u nullglob
 }
