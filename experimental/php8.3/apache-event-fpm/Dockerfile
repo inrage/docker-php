@@ -154,6 +154,7 @@ RUN set -eux; \
   chown www-data:www-data /var/run/php; \
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
   "${PHP_INI_DIR}/conf.d" \
+  /usr/local/etc/php-fpm.d \
   /etc/apache2/sites-available/000-default.conf \
   /etc/apache2/conf-enabled \
   /etc/apache2/mpm-overrides \
