@@ -38,11 +38,6 @@ process_templates() {
   _gotpl "msmtprc.tmpl" "/etc/msmtprc"
 }
 
-# socket dir (runtime)
-mkdir -p /var/run/php
-chown www-data:www-data /var/run/php
-chmod 0755 /var/run/php
-
 process_templates
 exec_init_scripts
 
