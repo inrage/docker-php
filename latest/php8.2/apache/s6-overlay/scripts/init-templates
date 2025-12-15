@@ -34,6 +34,7 @@ process_templates() {
 }
 
 exec_init_scripts() {
+  cd "${APP_ROOT:-/var/www/html}"
   shopt -s nullglob
   for f in /docker-entrypoint-init.d/*; do
     echo "Running init script: $f"
