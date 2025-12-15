@@ -7,58 +7,9 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:8.3.28-apache
-
-ARG INRAGE_USER_ID=1000
-ARG INRAGE_GROUP_ID=1000
-
-ENV APP_ROOT="/var/www/html"
-
-ENV PATH="${PATH}:/home/inr/.composer/vendor/bin:${APP_ROOT}/vendor/bin:${APP_ROOT}/bin"
-
-RUN set -xe; \
-  groupadd -g $INRAGE_GROUP_ID inr; \
-  useradd -u $INRAGE_USER_ID -g $INRAGE_GROUP_ID -m -s /bin/bash -g inr inr; \
-  adduser inr www-data; \
-  sed -i '/^inr/s/!/*/' /etc/shadow;
-
-RUN set -xe; \
-  {\
-  echo 'export PS1="\[\e[1;34m\]\u\[\e[0m\]\[\e[0;36m\]@\[\e[0;33m\]${INR_APP_NAME:-php}\[\e[0;35m\].${INR_ENVIRONMENT_NAME:-prod}\[\e[0m\]:\w $ "'; \
-  # Make sure PATH is the same for ssh sessions.
-  echo "export PATH=${PATH}"; \
-  echo "alias l='ls -lah'"; \
-  echo "alias ls='ls -F --color'"; \
-  echo "alias ll='ls -lF --color'"; \
-  echo "alias l='ls -lhaF --color'"; \
-  echo "alias l.='ls -daF --color .*'"; \
-  } | tee /home/inr/.shrc; \
-  \
-  cp /home/inr/.shrc /home/inr/.bashrc; \
-  cp /home/inr/.shrc /home/inr/.bash_profile;
-
-RUN set -eux; \
-  chmod 755 /var/www/html; \
-  chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /var/www/html;
-
-RUN set -eux; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends \
-  ghostscript \
-  less \
-  mariadb-client \
-  msmtp \
-  msmtp-mta \
-  cron \
-  wget \
-  vim \
-  ; \
-  rm -rf /var/lib/apt/lists/*
+FROM php:8.3.28-apache AS builder
 
 RUN set -ex; \
-  \
-  savedAptMark="$(apt-mark showmanual)"; \
-  \
   apt-get update; \
   apt-get install -y --no-install-recommends \
   libavif-dev \
@@ -69,6 +20,7 @@ RUN set -ex; \
   libpng-dev \
   libwebp-dev \
   libzip-dev \
+  wget \
   ; \
   \
   docker-php-ext-configure gd \
@@ -89,44 +41,91 @@ RUN set -ex; \
   pdo \
   pdo_mysql \
   ; \
-  # NewRelic extension and agent. \
-  newrelic_url="http://download.newrelic.com/php_agent/release/"; \
-  wget -r -nd --no-parent -P /tmp/newrelic -Alinux.tar.gz "${newrelic_url}" >/dev/null 2>&1; \
-  tar -xzf /tmp/newrelic/newrelic-php*.tar.gz --strip=1 -C /tmp/newrelic; \
-  export NR_INSTALL_SILENT=true; \
-  export NR_INSTALL_USE_CP_NOT_LN=true; \
-  bash /tmp/newrelic/newrelic-install install; \
-  rm -f /usr/local/etc/php/conf.d/newrelic.ini; \
-  mkdir -p /var/log/newrelic/; \
-  chown -R www-data:www-data /var/log/newrelic/; \
-  chmod -R 775 /var/log/newrelic/; \
-  \
-  # https://pecl.php.net/package/imagick
   pecl install imagick-3.8.0; \
   docker-php-ext-enable imagick; \
   rm -r /tmp/pear; \
   \
-  # some misbehaving extensions end up outputting to stdout 🙈 (https://github.com/docker-library/wordpress/issues/669#issuecomment-993945967)
-  out="$(php -r 'exit(0);')"; \
-  [ -z "$out" ]; \
-  err="$(php -r 'exit(0);' 3>&1 1>&2 2>&3)"; \
-  [ -z "$err" ]; \
+  newrelic_url="http://download.newrelic.com/php_agent/release"; \
+  arch=$(uname -m); \
+  case "$arch" in \
+  x86_64) nr_file=$(wget -qO- "${newrelic_url}/" | grep -oE 'newrelic-php5-[0-9.]+-linux\.tar\.gz' | head -1) ;; \
+  aarch64) nr_file=$(wget -qO- "${newrelic_url}/" | grep -oE 'newrelic-php5-[0-9.]+-linux-aarch64\.tar\.gz' | head -1) ;; \
+  esac; \
+  if [ -n "$nr_file" ]; then \
+  mkdir -p /tmp/newrelic; \
+  wget -qO /tmp/newrelic/newrelic.tar.gz "${newrelic_url}/${nr_file}"; \
+  tar -xzf /tmp/newrelic/newrelic.tar.gz --strip=1 -C /tmp/newrelic; \
+  export NR_INSTALL_SILENT=true; \
+  export NR_INSTALL_USE_CP_NOT_LN=true; \
+  bash /tmp/newrelic/newrelic-install install; \
+  rm -f /usr/local/etc/php/conf.d/newrelic.ini; \
+  else \
+  echo "NewRelic agent not available for architecture: $arch"; \
+  touch /usr/bin/newrelic-daemon; \
+  fi
+
+FROM php:8.3.28-apache AS runtime
+
+ARG INRAGE_USER_ID=1000
+ARG INRAGE_GROUP_ID=1000
+ARG TARGETPLATFORM
+
+ENV APP_ROOT="/var/www/html"
+ENV PATH="${PATH}:/home/inr/.composer/vendor/bin:${APP_ROOT}/vendor/bin:${APP_ROOT}/bin"
+
+RUN set -xe; \
+  groupadd -g $INRAGE_GROUP_ID inr; \
+  useradd -u $INRAGE_USER_ID -g $INRAGE_GROUP_ID -m -s /bin/bash -g inr inr; \
+  adduser inr www-data; \
+  sed -i '/^inr/s/!/*/' /etc/shadow;
+
+RUN set -xe; \
+  {\
+  echo 'export PS1="\[\e[1;34m\]\u\[\e[0m\]\[\e[0;36m\]@\[\e[0;33m\]${INR_APP_NAME:-php}\[\e[0;35m\].${INR_ENVIRONMENT_NAME:-prod}\[\e[0m\]:\w $ "'; \
+  echo "export PATH=${PATH}"; \
+  echo "alias l='ls -lah'"; \
+  echo "alias ls='ls -F --color'"; \
+  echo "alias ll='ls -lF --color'"; \
+  echo "alias l='ls -lhaF --color'"; \
+  echo "alias l.='ls -daF --color .*'"; \
+  } | tee /home/inr/.shrc; \
   \
+  cp /home/inr/.shrc /home/inr/.bashrc; \
+  cp /home/inr/.shrc /home/inr/.bash_profile;
+
+RUN set -eux; \
+  chmod 755 /var/www/html; \
+  chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /var/www/html;
+
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+  ghostscript \
+  less \
+  msmtp \
+  msmtp-mta \
+  cron \
+  wget \
+  ; \
+  rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+COPY --from=builder /usr/bin/newrelic-daemon /usr/bin/newrelic-daemon
+
+RUN set -ex; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+  libavif16 \
+  libicu76 \
+  libmagickwand-7.q16-10 \
+  libzip5 \
+  ; \
+  rm -rf /var/lib/apt/lists/*
+
+RUN set -ex; \
   extDir="$(php -r 'echo ini_get("extension_dir");')"; \
   [ -d "$extDir" ]; \
-  # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
-  apt-mark auto '.*' > /dev/null; \
-  apt-mark manual $savedAptMark; \
-  ldd "$extDir"/*.so \
-  | awk '/=>/ { so = $(NF-1); if (index(so, "/usr/local/") == 1) { next }; gsub("^/(usr/)?", "", so); printf "*%s\n", so }' \
-  | sort -u \
-  | xargs -r dpkg-query --search \
-  | cut -d: -f1 \
-  | sort -u \
-  | xargs -rt apt-mark manual; \
-  \
-  apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-  rm -rf /var/lib/apt/lists/*; \
   \
   for f in "$extDir"/*.so; do \
   if ldd "$f" | grep 'not found'; then \
@@ -134,11 +133,18 @@ RUN set -ex; \
   exit 1; \
   fi; \
   done; \
-  # check for output like "PHP Warning:  PHP Startup: Unable to load dynamic library 'foo' (tried: ...)
+  \
+  out="$(php -r 'exit(0);')"; \
+  [ -z "$out" ]; \
+  err="$(php -r 'exit(0);' 3>&1 1>&2 2>&3)"; \
+  [ -z "$err" ]; \
   err="$(php --version 3>&1 1>&2 2>&3)"; \
-  [ -z "$err" ]
+  [ -z "$err" ]; \
+  \
+  mkdir -p /var/log/newrelic/; \
+  chown -R www-data:www-data /var/log/newrelic/; \
+  chmod -R 775 /var/log/newrelic/
 
-# use production php.ini
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
@@ -147,8 +153,6 @@ RUN set -eux; \
 RUN set -eux; \
   a2enmod rewrite expires headers remoteip; \
   find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
-
-ARG TARGETPLATFORM
 
 RUN set -eux; \
   \
@@ -166,7 +170,6 @@ RUN set -eux; \
   /etc/apache2/mpm-overrides \
   /etc/msmtprc; \
   echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_prefork.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
-  # Download helper scripts.
   dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
   dockerplatform=$(printf '%s' "$dockerplatform" | tr '/' '-'); \
   gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.0/gotpl-${dockerplatform}.tar.gz"; \
