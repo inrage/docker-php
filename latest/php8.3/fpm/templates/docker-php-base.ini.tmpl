@@ -1,9 +1,0 @@
-memory_limit = {{ getenv "PHP_MEMORY_LIMIT" "256M" }}
-upload_max_filesize = {{ getenv "PHP_UPLOAD_MAX_FILESIZE" "64M" }}
-post_max_size = {{ getenv "PHP_POST_MAX_SIZE" "64M" }}
-max_execution_time = {{ getenv "PHP_MAX_EXECUTION_TIME" "60" }}
-default_socket_timeout = {{ getenv "PHP_DEFAULT_SOCKET_TIMEOUT" "60" }}
-realpath_cache_size = {{ getenv "PHP_REALPATH_CACHE_SIZE" "4096K" }}
-realpath_cache_ttl  = {{ getenv "PHP_REALPATH_CACHE_TTL" "600" }}
-sendmail_path={{ getenv "PHP_SENDMAIL_PATH" "/usr/bin/msmtp -t --read-envelope-from" }}
-

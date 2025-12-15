@@ -6,9 +6,6 @@
       { "folder": "8.3", "tag": "8.3.28" },
       { "folder": "8.4", "tag": "8.4.15" }
     ],
-    "variants": ["apache", "fpm"]
-  },
-  "experimental": [
-    { "context": "experimental/php8.3/apache-event-fpm", "tag": "inrage/docker-php:8.3-event-fpm", "name": "experimental-8.3-event-fpm" }
-  ]
+    "variants": ["apache"]
+  }
 }

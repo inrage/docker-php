@@ -1,0 +1,11 @@
+StartServers               {{ getenv "APACHE_EVENT_START_SERVERS" "2" }}
+MinSpareThreads            {{ getenv "APACHE_EVENT_MIN_SPARE_THREADS" "25" }}
+MaxSpareThreads            {{ getenv "APACHE_EVENT_MAX_SPARE_THREADS" "75" }}
+ThreadsPerChild            {{ getenv "APACHE_EVENT_THREADS_PER_CHILD" "25" }}
+ThreadLimit                {{ getenv "APACHE_EVENT_THREAD_LIMIT" "64" }}
+MaxRequestWorkers          {{ getenv "APACHE_EVENT_MAX_REQUEST_WORKERS" "150" }}
+MaxConnectionsPerChild     {{ getenv "APACHE_EVENT_MAX_CONNECTIONS_PER_CHILD" "2000" }}
+
+KeepAlive                  {{ getenv "APACHE_KEEPALIVE" "On" }}
+MaxKeepAliveRequests       {{ getenv "APACHE_MAX_KEEPALIVE_REQUESTS" "100" }}
+KeepAliveTimeout           {{ getenv "APACHE_KEEPALIVE_TIMEOUT" "2" }}

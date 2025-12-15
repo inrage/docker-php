@@ -7,7 +7,7 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:8.4.15-apache AS builder
+FROM php:8.4.15-fpm AS builder
 
 RUN set -ex; \
   apt-get update; \
@@ -64,7 +64,7 @@ RUN set -ex; \
   touch /usr/bin/newrelic-daemon; \
   fi
 
-FROM php:8.4.15-apache AS runtime
+FROM php:8.4.15-fpm AS runtime
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
@@ -100,7 +100,10 @@ RUN set -eux; \
 RUN set -eux; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  ghostscript \
+    apache2 \
+  apache2-utils \
+  supervisor \
+    ghostscript \
   less \
   msmtp \
   msmtp-mta \
@@ -151,7 +154,10 @@ RUN set -eux; \
   docker-php-ext-enable opcache;
 
 RUN set -eux; \
+  a2dismod mpm_prefork || true; \
+  a2enmod mpm_event; \
   a2enmod rewrite expires headers remoteip; \
+  a2enmod proxy proxy_fcgi setenvif; \
   find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
 
 RUN set -eux; \
@@ -159,30 +165,33 @@ RUN set -eux; \
   chmod 755 ${APP_ROOT}; \
   chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
   touch /etc/msmtprc; \
-  mkdir -p /etc/apache2/sites-available; \
+    mkdir -p /etc/apache2/sites-available; \
   touch /etc/apache2/sites-available/000-default.conf; \
   mkdir -p /etc/apache2/conf-enabled; \
   mkdir -p /etc/apache2/mpm-overrides; \
+  mkdir -p /var/run/php; \
+  chown www-data:www-data /var/run/php; \
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
   "${PHP_INI_DIR}/conf.d" \
+  /usr/local/etc/php-fpm.d \
   /etc/apache2/sites-available/000-default.conf \
   /etc/apache2/conf-enabled \
   /etc/apache2/mpm-overrides \
   /etc/msmtprc; \
-  echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_prefork.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
-  dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
+  echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_event.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
+    dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
   dockerplatform=$(printf '%s' "$dockerplatform" | tr '/' '-'); \
-  gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.0/gotpl-${dockerplatform}.tar.gz"; \
+  gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.1/gotpl-${dockerplatform}.tar.gz"; \
   wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 
+COPY templates/supervisord.conf /etc/supervisor/supervisord.conf
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
 COPY docker-entrypoint.sh /
 COPY bin /usr/local/bin/
 
-USER inr
 WORKDIR ${APP_ROOT}
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-CMD ["apache2-foreground"]
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]

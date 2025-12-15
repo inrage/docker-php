@@ -1,7 +1,11 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
+{{ if env.variant == "apache" then ( -}}
+FROM php:{{ env.tag }}-fpm AS builder
+{{ ) else ( -}}
 FROM php:{{ env.tag }}-{{ env.variant }} AS builder
+{{ ) end -}}
 
 RUN set -ex; \
   apt-get update; \
@@ -66,7 +70,11 @@ docker-php-ext-install -j "$(nproc)" \
   touch /usr/bin/newrelic-daemon; \
   fi
 
+{{ if env.variant == "apache" then ( -}}
+FROM php:{{ env.tag }}-fpm AS runtime
+{{ ) else ( -}}
 FROM php:{{ env.tag }}-{{ env.variant }} AS runtime
+{{ ) end -}}
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
@@ -102,6 +110,11 @@ RUN set -eux; \
 RUN set -eux; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
+  {{ if env.variant == "apache" then ( -}}
+  apache2 \
+  apache2-utils \
+  supervisor \
+  {{ ) else "" end -}}
   ghostscript \
   less \
   msmtp \
@@ -156,7 +169,10 @@ RUN set -eux; \
 
 {{ if env.variant == "apache" then ( -}}
 RUN set -eux; \
+  a2dismod mpm_prefork || true; \
+  a2enmod mpm_event; \
   a2enmod rewrite expires headers remoteip; \
+  a2enmod proxy proxy_fcgi setenvif; \
   find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
 {{ ) else "" end -}}
 
@@ -165,34 +181,55 @@ RUN set -eux; \
   chmod 755 ${APP_ROOT}; \
   chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
   touch /etc/msmtprc; \
+  {{ if env.variant == "apache" then ( -}}
   mkdir -p /etc/apache2/sites-available; \
   touch /etc/apache2/sites-available/000-default.conf; \
   mkdir -p /etc/apache2/conf-enabled; \
   mkdir -p /etc/apache2/mpm-overrides; \
+  mkdir -p /var/run/php; \
+  chown www-data:www-data /var/run/php; \
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
   "${PHP_INI_DIR}/conf.d" \
+  /usr/local/etc/php-fpm.d \
   /etc/apache2/sites-available/000-default.conf \
   /etc/apache2/conf-enabled \
   /etc/apache2/mpm-overrides \
   /etc/msmtprc; \
-  echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_prefork.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
+  echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_event.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
+  {{ ) elif env.variant == "fpm" then ( -}}
+  chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
+  "${PHP_INI_DIR}/conf.d" \
+  /usr/local/etc/php-fpm.d \
+  /etc/msmtprc; \
+  {{ ) else ( -}}
+  chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
+  "${PHP_INI_DIR}/conf.d" \
+  /etc/msmtprc; \
+  {{ ) end -}}
   dockerplatform="${TARGETPLATFORM:-linux/amd64}"; \
   dockerplatform=$(printf '%s' "$dockerplatform" | tr '/' '-'); \
-  gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.0/gotpl-${dockerplatform}.tar.gz"; \
+  gotpl_url="https://github.com/inrage/gotpl/releases/download/1.0.1/gotpl-${dockerplatform}.tar.gz"; \
   wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 
+{{ if env.variant == "apache" then ( -}}
+COPY templates/supervisord.conf /etc/supervisor/supervisord.conf
+{{ ) else "" end -}}
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
 COPY docker-entrypoint.sh /
 COPY bin /usr/local/bin/
 
+{{ if env.variant != "apache" then ( -}}
 USER inr
+{{ ) else "" end -}}
 WORKDIR ${APP_ROOT}
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-{{ if env.variant != "cli" then ( -}}
-CMD ["apache2-foreground"]
+{{ if env.variant == "apache" then ( -}}
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+{{ ) elif env.variant == "fpm" then ( -}}
+CMD ["php-fpm"]
 {{ ) else ( -}}
 CMD ["php"]
 {{ ) end -}}

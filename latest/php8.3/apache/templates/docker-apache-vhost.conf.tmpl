@@ -8,53 +8,50 @@
 
     <Directory "{{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}">
         AllowOverride All
-
-        Options -Indexes +FollowSymLinks
+        Options -Indexes +FollowSymLinks -MultiViews
         Require all granted
+    </Directory>
 
-        Options -MultiViews
+    <FilesMatch "\.php$">
+        SetHandler "proxy:unix:/var/run/php/php-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+
+    <Directory "{{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}/wp-content/uploads">
+        <FilesMatch "\.php$">
+            Require all denied
+        </FilesMatch>
     </Directory>
 
     <FilesMatch "^\.">
-        Order allow,deny
-        Deny from all
+        Require all denied
     </FilesMatch>
 
     <FilesMatch "\.(?:sh|sql|mysql|po|tpl|make|test)$">
-        Order allow,deny
-        Deny from all
+        Require all denied
     </FilesMatch>
 
-    <FilesMatch "^Makefile">
-        Order allow,deny
-        Deny from all
+    <FilesMatch "^Makefile$">
+        Require all denied
     </FilesMatch>
 
-    <DirectoryMatch "^\.|\/\.">
-        Order allow,deny
-        Deny from all
-    </DirectoryMatch>
+    <LocationMatch "(^|/)\.">
+        Require all denied
+    </LocationMatch>
 
     RedirectMatch 404 ^/readme\.html$
 
     <Files "xmlrpc.php">
-        Order allow,deny
-        Deny from all
+        Require all denied
     </Files>
 
-    <DirectoryMatch "^.*/\.git/">
-        Order allow,deny
-        Deny from all
-    </DirectoryMatch>
-
-    <LocationMatch "^/wp-content/uploads/woocommerce_uploads/">
-        Order allow,deny
-        Deny from all
+    <LocationMatch "^/.*/\.git/">
+        Require all denied
     </LocationMatch>
 
-    #################################################################
-    # Cache HTTP
-    #################################################################
+    <LocationMatch "^/wp-content/uploads/woocommerce_uploads/">
+        Require all denied
+    </LocationMatch>
+
     <IfModule mod_expires.c>
         ExpiresActive On
 
@@ -82,6 +79,9 @@
 
     SetEnvIf Request_URI "^/wp-cron\.php$" dontlog
     SetEnvIf Request_URI "^/wp-admin/admin-ajax\.php$" dontlog
-    CustomLog ${APACHE_LOG_DIR}/access.log combined env=!dontlog
-</VirtualHost>
+    SetEnvIf Request_URI "^/wp-json/" dontlog
+    LogFormat "%a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" inrage
 
+    CustomLog "/proc/self/fd/1" inrage env=!dontlog
+    ErrorLog  "/proc/self/fd/2"
+</VirtualHost>
