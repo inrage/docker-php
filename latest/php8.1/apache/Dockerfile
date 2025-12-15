@@ -180,6 +180,7 @@ RUN set -eux; \
 
 RUN set -eux; \
   \
+  rm -f ${APP_ROOT}/index.html; \
   chmod 755 ${APP_ROOT}; \
   chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} ${APP_ROOT}; \
   touch /etc/msmtprc; \
