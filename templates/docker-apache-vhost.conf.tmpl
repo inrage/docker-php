@@ -1,4 +1,4 @@
-<VirtualHost *:80>
+<VirtualHost *:{{ getenv "APACHE_HTTP_PORT" "8080" }}>
     ServerAdmin webmaster@localhost
     DocumentRoot {{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}
     ServerName default

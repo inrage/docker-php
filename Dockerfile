@@ -82,6 +82,10 @@ ARG TARGETPLATFORM
 
 ENV APP_ROOT="/var/www/html"
 ENV PATH="${PATH}:/home/inr/.composer/vendor/bin:${APP_ROOT}/vendor/bin:${APP_ROOT}/bin"
+{{ if env.variant == "apache" then ( -}}
+ENV APACHE_HTTP_PORT=8080
+ENV APACHE_HTTPS_PORT=8443
+{{ ) else "" end -}}
 
 RUN set -xe; \
   groupadd -g $INRAGE_GROUP_ID inr; \
@@ -107,13 +111,19 @@ RUN set -eux; \
   chmod 755 /var/www/html; \
   chown ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} /var/www/html;
 
+{{ if env.variant == "apache" then ( -}}
+ADD https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.2/s6-overlay-noarch.tar.xz /tmp
+ADD https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.2/s6-overlay-x86_64.tar.xz /tmp
+ADD https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.2/s6-overlay-aarch64.tar.xz /tmp
+{{ ) else "" end -}}
+
 RUN set -eux; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
   {{ if env.variant == "apache" then ( -}}
   apache2 \
   apache2-utils \
-  supervisor \
+  xz-utils \
   {{ ) else "" end -}}
   ghostscript \
   less \
@@ -173,7 +183,18 @@ RUN set -eux; \
   a2enmod mpm_event; \
   a2enmod rewrite expires headers remoteip; \
   a2enmod proxy proxy_fcgi setenvif; \
-  find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
+  find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +; \
+  sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf; \
+  sed -i 's/Listen 443/Listen 8443/' /etc/apache2/ports.conf; \
+  sed -i 's/APACHE_RUN_USER=www-data/APACHE_RUN_USER=inr/' /etc/apache2/envvars; \
+  sed -i 's/APACHE_RUN_GROUP=www-data/APACHE_RUN_GROUP=inr/' /etc/apache2/envvars; \
+  tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz; \
+  arch=$(uname -m); \
+  case "$arch" in \
+    x86_64) tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz ;; \
+    aarch64) tar -C / -Jxpf /tmp/s6-overlay-aarch64.tar.xz ;; \
+  esac; \
+  rm -f /tmp/s6-overlay-*.tar.xz
 {{ ) else "" end -}}
 
 RUN set -eux; \
@@ -187,14 +208,22 @@ RUN set -eux; \
   mkdir -p /etc/apache2/conf-enabled; \
   mkdir -p /etc/apache2/mpm-overrides; \
   mkdir -p /var/run/php; \
-  chown www-data:www-data /var/run/php; \
+  mkdir -p /var/run/apache2; \
+  mkdir -p /var/lock/apache2; \
+  mkdir -p /var/log/apache2; \
+  sed -i 's/^user = .*/;user = www-data/' /usr/local/etc/php-fpm.d/www.conf; \
+  sed -i 's/^group = .*/;group = www-data/' /usr/local/etc/php-fpm.d/www.conf; \
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
   "${PHP_INI_DIR}/conf.d" \
   /usr/local/etc/php-fpm.d \
   /etc/apache2/sites-available/000-default.conf \
   /etc/apache2/conf-enabled \
   /etc/apache2/mpm-overrides \
-  /etc/msmtprc; \
+  /etc/msmtprc \
+  /var/run/php \
+  /var/run/apache2 \
+  /var/lock/apache2 \
+  /var/log/apache2; \
   echo 'IncludeOptional /etc/apache2/mpm-overrides/mpm_event.conf' > /etc/apache2/conf-enabled/mpm-overrides.conf; \
   {{ ) elif env.variant == "fpm" then ( -}}
   chown -R ${INRAGE_USER_ID}:${INRAGE_GROUP_ID} \
@@ -212,24 +241,26 @@ RUN set -eux; \
   wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 
 {{ if env.variant == "apache" then ( -}}
-COPY templates/supervisord.conf /etc/supervisor/supervisord.conf
+COPY s6-overlay/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
+COPY s6-overlay/scripts/ /etc/s6-overlay/scripts/
+RUN chmod +x /etc/s6-overlay/scripts/* && \
+    find /etc/s6-overlay/s6-rc.d -name run -exec chmod +x {} \; && \
+    chmod -R a+rX /etc/s6-overlay/s6-rc.d /etc/s6-overlay/scripts
 {{ ) else "" end -}}
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
+{{ if env.variant != "apache" then ( -}}
 COPY docker-entrypoint.sh /
+{{ ) else "" end -}}
 COPY bin /usr/local/bin/
 
-{{ if env.variant != "apache" then ( -}}
 USER inr
-{{ ) else "" end -}}
 WORKDIR ${APP_ROOT}
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
 {{ if env.variant == "apache" then ( -}}
-CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
-{{ ) elif env.variant == "fpm" then ( -}}
-CMD ["php-fpm"]
+EXPOSE 8080 8443
+ENTRYPOINT ["/init"]
 {{ ) else ( -}}
-CMD ["php"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD [{{ if env.variant == "fpm" then "\"php-fpm\"" else "\"php\"" end }}]
 {{ ) end -}}

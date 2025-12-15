@@ -52,5 +52,9 @@ for phpVersion in "${phpVersions[@]}"; do
         cp -aR bin "$dir/"
         cp -a cron-entrypoint.sh "$dir/"
         cp -a docker-entrypoint.sh "$dir/"
+
+        if [ "$variant" = "apache" ]; then
+            cp -aR s6-overlay "$dir/"
+        fi
     done
 done
