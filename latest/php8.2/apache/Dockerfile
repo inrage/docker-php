@@ -74,6 +74,7 @@ ENV APP_ROOT="/var/www/html"
 ENV PATH="${PATH}:/home/inr/.composer/vendor/bin:${APP_ROOT}/vendor/bin:${APP_ROOT}/bin"
 ENV APACHE_HTTP_PORT=8080
 ENV APACHE_HTTPS_PORT=8443
+ENV S6_KEEP_ENV=1
 
 RUN set -xe; \
   groupadd -g $INRAGE_GROUP_ID inr; \

@@ -85,6 +85,7 @@ ENV PATH="${PATH}:/home/inr/.composer/vendor/bin:${APP_ROOT}/vendor/bin:${APP_RO
 {{ if env.variant == "apache" then ( -}}
 ENV APACHE_HTTP_PORT=8080
 ENV APACHE_HTTPS_PORT=8443
+ENV S6_KEEP_ENV=1
 {{ ) else "" end -}}
 
 RUN set -xe; \
