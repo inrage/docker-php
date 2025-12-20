@@ -7,7 +7,7 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:8.4.15-fpm AS builder
+FROM php:8.4.16-fpm AS builder
 
 RUN set -ex; \
   apt-get update; \
@@ -64,7 +64,7 @@ RUN set -ex; \
   touch /usr/bin/newrelic-daemon; \
   fi
 
-FROM php:8.4.15-fpm AS runtime
+FROM php:8.4.16-fpm AS runtime
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
