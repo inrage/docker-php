@@ -35,6 +35,9 @@ for phpVersion in "${phpVersions[@]}"; do
     tag="$(jq -r --arg phpVersion "$phpVersion" '.[env.version].phpVersions[] | select(.folder == $phpVersion) | .tag' versions.json)"
     export tag
 
+    sury="$(jq -r --arg phpVersion "$phpVersion" '.[env.version].phpVersions[] | select(.folder == $phpVersion) | .sury // ""' versions.json)"
+    export sury
+
     for variant in "${variants[@]}"; do
         export variant
 

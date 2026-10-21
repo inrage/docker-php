@@ -7,64 +7,60 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:8.1.34-fpm AS builder
+FROM debian:trixie-slim AS runtime
 
-RUN set -ex; \
+ENV PHP_VERSION=8.1.34
+ENV PHP_INI_DIR=/usr/local/etc/php
+
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends ca-certificates curl gnupg wget; \
+  curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/sury-php.gpg; \
+  echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ trixie main" > /etc/apt/sources.list.d/sury-php.list; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  libavif-dev \
-  libfreetype6-dev \
-  libicu-dev \
-  libjpeg-dev \
-  libmagickwand-dev \
-  libpng-dev \
-  libwebp-dev \
-  libzip-dev \
-  wget \
+  php8.1-bcmath=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-cli=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-common=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-curl=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-fpm=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-gd=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-intl=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-mbstring=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-mysql=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-opcache=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-readline=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-soap=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-sqlite3=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-xml=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-zip=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-imagick \
   ; \
-  \
-  docker-php-ext-configure gd \
-  --with-avif \
-  --with-freetype \
-  --with-jpeg \
-  --with-webp \
-  ; \
-  docker-php-ext-install -j "$(nproc)" \
-  bcmath \
-  exif \
-  gd \
-  intl \
-  mysqli \
-  zip \
-  $(test "${PHP_VERSION:0:3}" != "8.5" && echo 'opcache') \
-  soap \
-  pdo \
-  pdo_mysql \
-  ; \
-  pecl install imagick-3.8.0; \
-  docker-php-ext-enable imagick; \
-  rm -r /tmp/pear; \
-  \
-  newrelic_url="http://download.newrelic.com/php_agent/release"; \
-  arch=$(uname -m); \
-  case "$arch" in \
-  x86_64) nr_file=$(wget -qO- "${newrelic_url}/" | grep -oE 'newrelic-php5-[0-9.]+-linux\.tar\.gz' | head -1) ;; \
-  aarch64) nr_file=$(wget -qO- "${newrelic_url}/" | grep -oE 'newrelic-php5-[0-9.]+-linux-aarch64\.tar\.gz' | head -1) ;; \
-  esac; \
-  if [ -n "$nr_file" ]; then \
-  mkdir -p /tmp/newrelic; \
-  wget -qO /tmp/newrelic/newrelic.tar.gz "${newrelic_url}/${nr_file}"; \
-  tar -xzf /tmp/newrelic/newrelic.tar.gz --strip=1 -C /tmp/newrelic; \
-  export NR_INSTALL_SILENT=true; \
-  export NR_INSTALL_USE_CP_NOT_LN=true; \
-  bash /tmp/newrelic/newrelic-install install; \
-  rm -f /usr/local/etc/php/conf.d/newrelic.ini; \
-  else \
-  echo "NewRelic agent not available for architecture: $arch"; \
-  touch /usr/bin/newrelic-daemon; \
-  fi
+  apt-get purge -y --auto-remove gnupg; \
+  rm -rf /var/lib/apt/lists/*; \
+  [ "$(dpkg-query -W -f='${Version}' php8.1-cli)" = "8.1.34-9+0~20261021.82+debian13~1.gbp4e430a" ]
 
-FROM php:8.1.34-fpm AS runtime
+RUN set -eux; \
+  v=8.1; \
+  mkdir -p "$PHP_INI_DIR/conf.d" /usr/local/etc/php-fpm.d /usr/local/sbin /var/run/php /var/www/html; \
+  cp -a "/etc/php/$v/fpm/conf.d/." "$PHP_INI_DIR/conf.d/"; \
+  cp "/usr/lib/php/$v/php.ini-production" "$PHP_INI_DIR/php.ini"; \
+  cp "/usr/lib/php/$v/php.ini-production" "/usr/lib/php/$v/php.ini-development" "$PHP_INI_DIR/"; \
+  for sapi in cli fpm; do \
+  rm -rf "/etc/php/$v/$sapi/conf.d" "/etc/php/$v/$sapi/php.ini"; \
+  ln -s "$PHP_INI_DIR/conf.d" "/etc/php/$v/$sapi/conf.d"; \
+  ln -s "$PHP_INI_DIR/php.ini" "/etc/php/$v/$sapi/php.ini"; \
+  done; \
+  sed -e 's/^listen\.owner/;listen.owner/' -e 's/^listen\.group/;listen.group/' "/etc/php/$v/fpm/pool.d/www.conf" > /usr/local/etc/php-fpm.d/www.conf; \
+  rm -rf "/etc/php/$v/fpm/pool.d"; \
+  ln -s /usr/local/etc/php-fpm.d "/etc/php/$v/fpm/pool.d"; \
+  sed -i -e 's/^error_log = /;error_log = /' -e 's#^pid = .*#pid = /var/run/php/php-fpm.pid#' "/etc/php/$v/fpm/php-fpm.conf"; \
+  printf '[global]\nerror_log = /proc/self/fd/2\nlog_limit = 8192\n\n[www]\naccess.log = /proc/self/fd/2\nclear_env = no\ncatch_workers_output = yes\ndecorate_workers_output = no\n' > /usr/local/etc/php-fpm.d/docker.conf; \
+  printf '[global]\ndaemonize = no\n\n[www]\nlisten = 9000\n' > /usr/local/etc/php-fpm.d/zz-docker.conf; \
+  printf 'fastcgi.logging = Off\n' > "$PHP_INI_DIR/conf.d/docker-fpm.ini"; \
+  rm "$PHP_INI_DIR/conf.d/10-opcache.ini"; \
+  printf 'zend_extension=opcache\n' > "$PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini"; \
+  ln -s "/usr/sbin/php-fpm$v" /usr/local/sbin/php-fpm
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
@@ -119,19 +115,6 @@ RUN set -eux; \
   ; \
   rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
-COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
-COPY --from=builder /usr/bin/newrelic-daemon /usr/bin/newrelic-daemon
-
-RUN set -ex; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends \
-  libavif16 \
-  libicu76 \
-  libmagickwand-7.q16-10 \
-  libzip5 \
-  ; \
-  rm -rf /var/lib/apt/lists/*
 
 RUN set -ex; \
   extDir="$(php -r 'echo ini_get("extension_dir");')"; \
@@ -149,16 +132,9 @@ RUN set -ex; \
   err="$(php -r 'exit(0);' 3>&1 1>&2 2>&3)"; \
   [ -z "$err" ]; \
   err="$(php --version 3>&1 1>&2 2>&3)"; \
-  [ -z "$err" ]; \
-  \
-  mkdir -p /var/log/newrelic/; \
-  chown -R www-data:www-data /var/log/newrelic/; \
-  chmod -R 775 /var/log/newrelic/
+  [ -z "$err" ]
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-RUN set -eux; \
-  docker-php-ext-enable opcache;
 
 RUN set -eux; \
   a2dismod mpm_prefork || true; \

@@ -24,7 +24,6 @@ process_templates() {
   _gotpl "docker-php-base.ini.tmpl" "${PHP_INI_DIR}/conf.d/zzz-custom-php.ini"
   _gotpl "docker-php-error.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-error.ini"
   _gotpl "docker-php-ext-opcache.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-opcache.ini"
-  _gotpl "docker-php-ext-newrelic.ini.tmpl" "${PHP_INI_DIR}/conf.d/docker-php-ext-newrelic.ini"
 
   if [[ -f "/usr/local/etc/php-fpm.d/www.conf" ]]; then
     _gotpl "docker-php-fpm-pool.conf.tmpl" "/usr/local/etc/php-fpm.d/zz-inrage-pool.conf"

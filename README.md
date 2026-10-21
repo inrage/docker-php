@@ -7,7 +7,7 @@ Optimized PHP Docker images with Apache Event MPM and PHP-FPM for high-performan
 - **Apache Event MPM + PHP-FPM**: High-performance architecture with threaded Apache and FastCGI process manager
 - **Supervisor**: Process orchestration for Apache and PHP-FPM
 - **PHP Extensions**: gd (avif, freetype, jpeg, webp), imagick, intl, mysqli, opcache, pdo_mysql, zip, bcmath, exif, soap
-- **Tools**: Composer path, msmtp for mail, NewRelic agent
+- **Tools**: Composer path, msmtp for mail
 - **Security**: Non-root `inr` user (UID/GID 1000) for PHP-FPM processes
 - **Runtime Configuration**: Environment-based configuration via gotpl templates
 
@@ -113,14 +113,6 @@ docker run -d -p 80:80 -v $(pwd):/var/www/html inrage/docker-php:8.4
 | `INR_SMTP_LOG` | |
 | `INR_SMTP_LOGFILE` | `/proc/self/fd/2` |
 | `INR_SMTP_ADD_MISSING_DATE_HEADER` | `on` |
-
-### NewRelic
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NEWRELIC_ENABLED` | `false` | Enable NewRelic agent |
-| `NEWRELIC_LICENSE` | | NewRelic license key |
-| `NEWRELIC_APPNAME` | `PHP Application` | Application name in NewRelic |
 
 ## Custom Init Scripts
 

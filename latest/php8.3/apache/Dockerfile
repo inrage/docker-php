@@ -43,26 +43,7 @@ RUN set -ex; \
   ; \
   pecl install imagick-3.8.0; \
   docker-php-ext-enable imagick; \
-  rm -r /tmp/pear; \
-  \
-  newrelic_url="http://download.newrelic.com/php_agent/release"; \
-  arch=$(uname -m); \
-  case "$arch" in \
-  x86_64) nr_file=$(wget -qO- "${newrelic_url}/" | grep -oE 'newrelic-php5-[0-9.]+-linux\.tar\.gz' | head -1) ;; \
-  aarch64) nr_file=$(wget -qO- "${newrelic_url}/" | grep -oE 'newrelic-php5-[0-9.]+-linux-aarch64\.tar\.gz' | head -1) ;; \
-  esac; \
-  if [ -n "$nr_file" ]; then \
-  mkdir -p /tmp/newrelic; \
-  wget -qO /tmp/newrelic/newrelic.tar.gz "${newrelic_url}/${nr_file}"; \
-  tar -xzf /tmp/newrelic/newrelic.tar.gz --strip=1 -C /tmp/newrelic; \
-  export NR_INSTALL_SILENT=true; \
-  export NR_INSTALL_USE_CP_NOT_LN=true; \
-  bash /tmp/newrelic/newrelic-install install; \
-  rm -f /usr/local/etc/php/conf.d/newrelic.ini; \
-  else \
-  echo "NewRelic agent not available for architecture: $arch"; \
-  touch /usr/bin/newrelic-daemon; \
-  fi
+  rm -r /tmp/pear
 
 FROM php:8.3.36-fpm AS runtime
 
@@ -121,7 +102,6 @@ RUN set -eux; \
 
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
-COPY --from=builder /usr/bin/newrelic-daemon /usr/bin/newrelic-daemon
 
 RUN set -ex; \
   apt-get update; \
@@ -149,11 +129,7 @@ RUN set -ex; \
   err="$(php -r 'exit(0);' 3>&1 1>&2 2>&3)"; \
   [ -z "$err" ]; \
   err="$(php --version 3>&1 1>&2 2>&3)"; \
-  [ -z "$err" ]; \
-  \
-  mkdir -p /var/log/newrelic/; \
-  chown -R www-data:www-data /var/log/newrelic/; \
-  chmod -R 775 /var/log/newrelic/
+  [ -z "$err" ]
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
