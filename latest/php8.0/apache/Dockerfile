@@ -55,8 +55,8 @@ RUN set -eux; \
   rm -rf "/etc/php/$v/fpm/pool.d"; \
   ln -s /usr/local/etc/php-fpm.d "/etc/php/$v/fpm/pool.d"; \
   sed -i -e 's/^error_log = /;error_log = /' -e 's#^pid = .*#pid = /var/run/php/php-fpm.pid#' "/etc/php/$v/fpm/php-fpm.conf"; \
-  printf '[global]\nerror_log = /proc/self/fd/2\nlog_limit = 8192\n\n[www]\naccess.log = /proc/self/fd/2\nclear_env = no\ncatch_workers_output = yes\ndecorate_workers_output = no\n' > /usr/local/etc/php-fpm.d/docker.conf; \
-  printf '[global]\ndaemonize = no\n\n[www]\nlisten = 9000\n' > /usr/local/etc/php-fpm.d/zz-docker.conf; \
+    printf '[global]\nerror_log = /proc/self/fd/2\nlog_limit = 8192\n\n[www]\naccess.log = /proc/self/fd/2\nclear_env = no\ncatch_workers_output = yes\ndecorate_workers_output = no\n' > /usr/local/etc/php-fpm.d/docker.conf; \
+    printf '[global]\ndaemonize = no\n\n[www]\nlisten = 9000\n' > /usr/local/etc/php-fpm.d/zz-docker.conf; \
   printf 'fastcgi.logging = Off\n' > "$PHP_INI_DIR/conf.d/docker-fpm.ini"; \
   rm "$PHP_INI_DIR/conf.d/10-opcache.ini"; \
   printf 'zend_extension=opcache\n' > "$PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini"; \
