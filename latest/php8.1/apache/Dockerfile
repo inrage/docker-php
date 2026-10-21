@@ -35,7 +35,7 @@ RUN set -eux; \
   php8.1-xml=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
   php8.1-zip=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
   php8.1-imagick \
-  ; \
+    ; \
   apt-get purge -y --auto-remove gnupg; \
   rm -rf /var/lib/apt/lists/*; \
   [ "$(dpkg-query -W -f='${Version}' php8.1-cli)" = "8.1.34-9+0~20261021.82+debian13~1.gbp4e430a" ]
@@ -142,7 +142,7 @@ RUN set -eux; \
   a2enmod rewrite expires headers remoteip; \
   a2enmod proxy proxy_fcgi setenvif; \
   find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +; \
-  sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf; \
+  sed -i 's/^Listen 80$/Listen ${APACHE_HTTP_PORT}/' /etc/apache2/ports.conf; \
   sed -i 's/Listen 443/Listen 8443/' /etc/apache2/ports.conf; \
   sed -i 's/APACHE_RUN_USER=www-data/APACHE_RUN_USER=inr/' /etc/apache2/envvars; \
   sed -i 's/APACHE_RUN_GROUP=www-data/APACHE_RUN_GROUP=inr/' /etc/apache2/envvars; \

@@ -38,6 +38,9 @@ for phpVersion in "${phpVersions[@]}"; do
     sury="$(jq -r --arg phpVersion "$phpVersion" '.[env.version].phpVersions[] | select(.folder == $phpVersion) | .sury // ""' versions.json)"
     export sury
 
+    httpPort="$(jq -r --arg phpVersion "$phpVersion" '.[env.version].phpVersions[] | select(.folder == $phpVersion) | .httpPort // "8080"' versions.json)"
+    export httpPort
+
     for variant in "${variants[@]}"; do
         export variant
 
