@@ -1,9 +1,0 @@
-error_reporting = {{ getenv "PHP_ERROR_REPORTING" "E_ERROR | E_WARNING | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_RECOVERABLE_ERROR" }}
-display_errors = {{ getenv "PHP_DISPLAY_ERRORS" "Off" }}
-display_startup_errors = {{ getenv "PHP_DISPLAY_STARTUP_ERRORS" "Off" }}
-log_errors = {{ getenv "PHP_LOG_ERRORS" "On" }}
-error_log = {{ getenv "PHP_ERROR_LOG" "/dev/stderr" }}
-log_errors_max_len = {{ getenv "PHP_LOG_ERRORS_MAX_LEN" "1024" }}
-ignore_repeated_errors = {{ getenv "PHP_IGNORE_REPEATED_ERRORS" "On" }}
-ignore_repeated_source = {{ getenv "PHP_IGNORE_REPEATED_SOURCE" "Off" }}
-html_errors = {{ getenv "PHP_HTML_ERRORS" "Off" }}
