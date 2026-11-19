@@ -7,7 +7,7 @@
 ARG PHP_VER
 ARG PHP_TYPE
 
-FROM php:8.3.36-fpm AS builder
+FROM php:8.3.37-fpm AS builder
 
 RUN set -ex; \
   apt-get update; \
@@ -45,7 +45,7 @@ RUN set -ex; \
   docker-php-ext-enable imagick; \
   rm -r /tmp/pear
 
-FROM php:8.3.36-fpm AS runtime
+FROM php:8.3.37-fpm AS runtime
 
 ARG INRAGE_USER_ID=1000
 ARG INRAGE_GROUP_ID=1000
