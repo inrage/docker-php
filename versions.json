@@ -1,7 +1,7 @@
 {
   "latest": {
     "phpVersions": [
-      { "folder": "7.2", "tag": "7.2.34", "sury": "7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4", "httpPort": "80" },
+      { "folder": "7.2", "tag": "7.2.34", "sury": "7.2.34-70+debsuryorg13.1+php+1", "httpPort": "80" },
       { "folder": "7.3", "tag": "7.3.33", "sury": "7.3.33-37+0~deb.sury.org.1+debian13", "httpPort": "80" },
       { "folder": "7.4", "tag": "7.4.33", "sury": "1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428", "httpPort": "80" },
       { "folder": "8.0", "tag": "8.0.30", "sury": "1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea", "httpPort": "80" },

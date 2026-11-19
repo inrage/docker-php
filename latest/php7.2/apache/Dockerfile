@@ -19,27 +19,27 @@ RUN set -eux; \
   echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ trixie main" > /etc/apt/sources.list.d/sury-php.list; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  php7.2-bcmath=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-cli=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-common=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-curl=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-fpm=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-gd=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-intl=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-mbstring=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-mysql=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-opcache=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-readline=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-soap=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-sqlite3=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-xml=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
-  php7.2-zip=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
+  php7.2-bcmath=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-cli=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-common=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-curl=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-fpm=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-gd=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-intl=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-mbstring=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-mysql=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-opcache=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-readline=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-soap=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-sqlite3=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-xml=7.2.34-70+debsuryorg13.1+php+1 \
+  php7.2-zip=7.2.34-70+debsuryorg13.1+php+1 \
   php7.2-imagick \
-    php7.2-json=7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4 \
+    php7.2-json=7.2.34-70+debsuryorg13.1+php+1 \
     ; \
   apt-get purge -y --auto-remove gnupg; \
   rm -rf /var/lib/apt/lists/*; \
-  [ "$(dpkg-query -W -f='${Version}' php7.2-cli)" = "7.2.34-66+0~20261021.122+debian13~1.gbpe0bcd4" ]
+  [ "$(dpkg-query -W -f='${Version}' php7.2-cli)" = "7.2.34-70+debsuryorg13.1+php+1" ]
 
 RUN set -eux; \
   v=7.2; \
