@@ -19,26 +19,26 @@ RUN set -eux; \
   echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ trixie main" > /etc/apt/sources.list.d/sury-php.list; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  php8.1-bcmath=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-cli=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-common=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-curl=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-fpm=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-gd=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-intl=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-mbstring=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-mysql=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-opcache=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-readline=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-soap=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-sqlite3=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-xml=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
-  php8.1-zip=8.1.34-9+0~20261021.82+debian13~1.gbp4e430a \
+  php8.1-bcmath=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-cli=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-common=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-curl=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-fpm=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-gd=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-intl=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-mbstring=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-mysql=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-opcache=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-readline=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-soap=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-sqlite3=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-xml=8.1.34-14+debsuryorg13.1+php+1 \
+  php8.1-zip=8.1.34-14+debsuryorg13.1+php+1 \
   php8.1-imagick \
     ; \
   apt-get purge -y --auto-remove gnupg; \
   rm -rf /var/lib/apt/lists/*; \
-  [ "$(dpkg-query -W -f='${Version}' php8.1-cli)" = "8.1.34-9+0~20261021.82+debian13~1.gbp4e430a" ]
+  [ "$(dpkg-query -W -f='${Version}' php8.1-cli)" = "8.1.34-14+debsuryorg13.1+php+1" ]
 
 RUN set -eux; \
   v=8.1; \
