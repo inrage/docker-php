@@ -19,27 +19,27 @@ RUN set -eux; \
   echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ trixie main" > /etc/apt/sources.list.d/sury-php.list; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  php7.4-bcmath=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-cli=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-common=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-curl=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-fpm=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-gd=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-intl=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-mbstring=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-mysql=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-opcache=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-readline=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-soap=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-sqlite3=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-xml=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
-  php7.4-zip=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
+  php7.4-bcmath=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-cli=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-common=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-curl=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-fpm=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-gd=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-intl=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-mbstring=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-mysql=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-opcache=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-readline=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-soap=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-sqlite3=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-xml=1:7.4.33-37+debsuryorg13.1+php+1 \
+  php7.4-zip=1:7.4.33-37+debsuryorg13.1+php+1 \
   php7.4-imagick \
-    php7.4-json=1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428 \
+    php7.4-json=1:7.4.33-37+debsuryorg13.1+php+1 \
     ; \
   apt-get purge -y --auto-remove gnupg; \
   rm -rf /var/lib/apt/lists/*; \
-  [ "$(dpkg-query -W -f='${Version}' php7.4-cli)" = "1:7.4.33-31+0~20261021.121+debian13~1.gbpe9c428" ]
+  [ "$(dpkg-query -W -f='${Version}' php7.4-cli)" = "1:7.4.33-37+debsuryorg13.1+php+1" ]
 
 RUN set -eux; \
   v=7.4; \
