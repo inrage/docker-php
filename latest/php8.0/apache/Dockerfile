@@ -19,26 +19,26 @@ RUN set -eux; \
   echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ trixie main" > /etc/apt/sources.list.d/sury-php.list; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  php8.0-bcmath=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-cli=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-common=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-curl=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-fpm=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-gd=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-intl=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-mbstring=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-mysql=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-opcache=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-readline=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-soap=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-sqlite3=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-xml=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
-  php8.0-zip=1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea \
+  php8.0-bcmath=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-cli=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-common=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-curl=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-fpm=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-gd=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-intl=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-mbstring=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-mysql=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-opcache=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-readline=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-soap=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-sqlite3=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-xml=1:8.0.30-31+debsuryorg13.1+php+1 \
+  php8.0-zip=1:8.0.30-31+debsuryorg13.1+php+1 \
   php8.0-imagick \
     ; \
   apt-get purge -y --auto-remove gnupg; \
   rm -rf /var/lib/apt/lists/*; \
-  [ "$(dpkg-query -W -f='${Version}' php8.0-cli)" = "1:8.0.30-25+0~20261021.88+debian13~1.gbpabebea" ]
+  [ "$(dpkg-query -W -f='${Version}' php8.0-cli)" = "1:8.0.30-31+debsuryorg13.1+php+1" ]
 
 RUN set -eux; \
   v=8.0; \
