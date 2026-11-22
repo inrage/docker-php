@@ -19,27 +19,27 @@ RUN set -eux; \
   echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ trixie main" > /etc/apt/sources.list.d/sury-php.list; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
-  php7.3-bcmath=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-cli=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-common=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-curl=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-fpm=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-gd=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-intl=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-mbstring=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-mysql=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-opcache=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-readline=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-soap=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-sqlite3=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-xml=7.3.33-41+debsuryorg13.1+php+1 \
-  php7.3-zip=7.3.33-41+debsuryorg13.1+php+1 \
+  php7.3-bcmath=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-cli=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-common=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-curl=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-fpm=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-gd=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-intl=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-mbstring=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-mysql=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-opcache=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-readline=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-soap=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-sqlite3=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-xml=7.3.33-42+debsuryorg13.1+1 \
+  php7.3-zip=7.3.33-42+debsuryorg13.1+1 \
   php7.3-imagick \
-    php7.3-json=7.3.33-41+debsuryorg13.1+php+1 \
+    php7.3-json=7.3.33-42+debsuryorg13.1+1 \
     ; \
   apt-get purge -y --auto-remove gnupg; \
   rm -rf /var/lib/apt/lists/*; \
-  [ "$(dpkg-query -W -f='${Version}' php7.3-cli)" = "7.3.33-41+debsuryorg13.1+php+1" ]
+  [ "$(dpkg-query -W -f='${Version}' php7.3-cli)" = "7.3.33-42+debsuryorg13.1+1" ]
 
 RUN set -eux; \
   v=7.3; \
