@@ -12,6 +12,13 @@
         Require all granted
     </Directory>
 
+{{ if ne (getenv "APACHE_STATIC_404" "true") "false" }}
+    <If "%{THE_REQUEST} =~ m#^(?:GET|HEAD) (?!(?:{{ getenv "APACHE_STATIC_404_EXCLUDE" "/wp-json(?:/|[? ])" }}))[^? ]+\.(?i:css|js|mjs|jpe?g|png|gif|webp|avif|svg|woff2?|ttf|otf|eot)(?:[? ])# && (%{REQUEST_URI} =~ m#(?:^|/)index\.php$# || reqenv('REDIRECT_STATUS') == '404')">
+        ErrorDocument 404 default
+        Redirect 404 /
+    </If>
+{{ end }}
+
     <FilesMatch "\.php$">
         SetHandler "proxy:unix:/var/run/php/php-fpm.sock|fcgi://localhost"
     </FilesMatch>

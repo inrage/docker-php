@@ -61,6 +61,16 @@ docker run -d -p 80:80 -v $(pwd):/var/www/html inrage/docker-php:8.4
 | `APACHE_KEEPALIVE_TIMEOUT` | `2` | KeepAlive timeout in seconds |
 | `APACHE_SERVER_NAME` | `localhost` | Server name |
 | `APACHE_VHOST_DIR` | `/var/www/html` | Document root |
+| `APACHE_STATIC_404` | `true` | Return an Apache 404 when a static asset request falls back to `index.php`; set to `false` to disable |
+| `APACHE_STATIC_404_EXCLUDE` | `/wp-json(?:/\|[? ])` | Regular expression matched from the start of the original URL path to preserve application-generated assets |
+
+### Missing static assets
+
+For GET and HEAD requests ending in CSS, JavaScript, common image or font extensions, Apache returns a native 404 if application rewrites fall back to `index.php` or a custom 404 error document. PHP is not invoked for these responses. Existing files and explicit rewrites to another file, including a missing JPEG rewritten to an existing WebP, continue to work.
+
+Normal application routes, query strings containing filenames, XML, JSON, text, PDF and ICO URLs are not blocked. WordPress REST routes under `/wp-json` are excluded by default. POST and other request methods keep their existing behavior. Front controllers with another name, such as `app.php`, are not intercepted.
+
+If an application generates an image or stylesheet through `index.php`, exclude its URL prefix. For example, `APACHE_STATIC_404_EXCLUDE='/wp-json(?:/|[? ])|/generated/'` preserves `/generated/chart.png` and the WordPress REST API. The expression is inserted into an Apache regular expression delimited by `#`; do not include that delimiter or double quotes. Set `APACHE_STATIC_404=false` for applications that need unrestricted static-looking routes. Custom virtual hosts must implement their own equivalent routing.
 
 ### PHP-FPM Pool
 
