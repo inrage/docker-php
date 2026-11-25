@@ -19,16 +19,20 @@ def docker(*args):
     return subprocess.check_output(["docker", *args], text=True).strip()
 
 
-def start(site, **environment):
+def start(site, custom_vhost=None, **environment):
     command = [
         "run", "--detach", "--platform", "linux/amd64",
         "--publish", "127.0.0.1::8080",
         "--volume", f"{site}:/var/www/html/public:ro",
         "--volume", f"{root / 'templates/docker-apache-vhost.conf.tmpl'}:/etc/gotpl/docker-apache-vhost.conf.tmpl:ro",
         "--volume", f"{root / 'templates/docker-apache-compression.conf'}:/etc/apache2/conf-enabled/inrage-compression.conf:ro",
+        "--volume", f"{root / 'templates/docker-apache-static.conf.tmpl'}:/etc/gotpl/docker-apache-static.conf.tmpl:ro",
+        "--volume", f"{root / 's6-overlay/scripts/init-templates'}:/etc/s6-overlay/scripts/init-templates:ro",
         "--env", "APACHE_VHOST_DIR=/var/www/html/public",
         "--env", "APACHE_HTTP_PORT=8080",
     ]
+    if custom_vhost:
+        command.extend(["--volume", f"{custom_vhost}:/etc/apache2/sites-enabled/000-default.conf:ro"])
     for key, value in environment.items():
         command.extend(["--env", f"{key}={value}"])
     cid = docker(*command, image)
@@ -140,6 +144,18 @@ try:
         cid, url = start(site, APACHE_STATIC_404="false")
         check(cid, url, "/missing.css", 200, "FRONT_CONTROLLER", 1)
         check(cid, url, "/plain/missing.css", 404, "PHP_ERROR_DOCUMENT", 1)
+        custom_vhost = site / "custom-vhost.conf"
+        custom_vhost.write_text(
+            '<VirtualHost *:8080>\nDocumentRoot /var/www/html/public\n'
+            '<Directory /var/www/html/public>\nAllowOverride All\nRequire all granted\n</Directory>\n'
+            '<FilesMatch "\\.php$">\nSetHandler "proxy:unix:/var/run/php/php-fpm.sock|fcgi://localhost"\n</FilesMatch>\n'
+            '</VirtualHost>\n'
+        )
+        cid, url = start(site, custom_vhost=custom_vhost)
+        check(cid, url, "/missing.css", 404, None)
+        check(cid, url, "/style.css", 200, "body { color: green; }")
+        check(cid, url, "/dynamic.css", 200, "GENERATED_CSS", 1)
+        check(cid, url, "/wp-json/render/image.png", 200, "FRONT_CONTROLLER", 1)
     print(json.dumps({"passed": len(results), "results": results}, indent=2))
 finally:
     for cid in containers:

@@ -18,6 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 tests/static-assets.py
+      - run: python3 tests/healthcheck.py
   generate-jobs:
     name: Generate Jobs
     runs-on: ubuntu-latest

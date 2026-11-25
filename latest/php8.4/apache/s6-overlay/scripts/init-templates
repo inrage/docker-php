@@ -24,9 +24,13 @@ process_templates() {
 
   if [[ -d "/etc/apache2" ]]; then
     _gotpl "docker-apache-servername.conf.tmpl" "/etc/apache2/conf-enabled/servername.conf"
-    _gotpl "docker-apache-vhost.conf.tmpl" "/etc/apache2/sites-available/000-default.conf"
+    if ! mountpoint -q /etc/apache2/sites-available/000-default.conf; then
+      _gotpl "docker-apache-vhost.conf.tmpl" "/etc/apache2/sites-available/000-default.conf"
+    fi
     _gotpl "docker-apache-remoteip.conf.tmpl" "/etc/apache2/conf-enabled/remoteip.conf"
     _gotpl "docker-apache-event.conf.tmpl" "/etc/apache2/mpm-overrides/mpm_event.conf"
+    _gotpl "docker-apache-health.conf.tmpl" "/etc/apache2/conf-enabled/inrage-health.conf"
+    _gotpl "docker-apache-static.conf.tmpl" "/etc/apache2/conf-enabled/inrage-static.conf"
   fi
 
   _gotpl "msmtprc.tmpl" "/etc/msmtprc"

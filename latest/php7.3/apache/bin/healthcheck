@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+if [ -f /tmp/inrage-command-mode ]; then
+    exit 0
+fi
+
+test "$(curl --fail --silent --show-error --noproxy '*' --max-time 3 "http://127.0.0.1:${INRAGE_HEALTH_PORT:-9001}/ping")" = pong

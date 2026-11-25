@@ -1,0 +1,10 @@
+Listen 127.0.0.1:{{ getenv "INRAGE_HEALTH_PORT" "9001" }}
+
+<VirtualHost 127.0.0.1:{{ getenv "INRAGE_HEALTH_PORT" "9001" }}>
+    ServerName localhost
+    ProxyPassMatch "^/ping$" "unix:/var/run/php/php-fpm.sock|fcgi://localhost/ping"
+
+    <Location "/">
+        Require local
+    </Location>
+</VirtualHost>

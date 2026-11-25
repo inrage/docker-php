@@ -300,12 +300,14 @@ COPY templates /etc/gotpl/
 COPY docker-entrypoint.sh /
 {{ ) else "" end -}}
 COPY bin /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck
 
 USER inr
 WORKDIR ${APP_ROOT}
 
 {{ if env.variant == "apache" then ( -}}
 EXPOSE 8080 8443
+HEALTHCHECK --start-period=90s --interval=30s --timeout=5s --retries=3 CMD ["healthcheck"]
 ENTRYPOINT ["/init"]
 {{ ) else ( -}}
 ENTRYPOINT ["/docker-entrypoint.sh"]

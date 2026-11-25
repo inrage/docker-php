@@ -196,9 +196,11 @@ RUN chmod +x /etc/s6-overlay/scripts/* && \
 COPY cron-entrypoint.sh /cron-entrypoint.sh
 COPY templates /etc/gotpl/
 COPY bin /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck
 
 USER inr
 WORKDIR ${APP_ROOT}
 
 EXPOSE 8080 8443
+HEALTHCHECK --start-period=90s --interval=30s --timeout=5s --retries=3 CMD ["healthcheck"]
 ENTRYPOINT ["/init"]

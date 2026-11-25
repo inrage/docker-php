@@ -5,7 +5,7 @@ Optimized PHP Docker images with Apache Event MPM and PHP-FPM for high-performan
 ## Features
 
 - **Apache Event MPM + PHP-FPM**: High-performance architecture with threaded Apache and FastCGI process manager
-- **Supervisor**: Process orchestration for Apache and PHP-FPM
+- **S6 Overlay**: Process orchestration for Apache and PHP-FPM
 - **PHP Extensions**: gd (avif, freetype, jpeg, webp), imagick, intl, mysqli, opcache, pdo_mysql, zip, bcmath, exif, soap
 - **Tools**: Composer path, msmtp for mail
 - **Security**: Non-root `inr` user (UID/GID 1000) for PHP-FPM processes
@@ -25,14 +25,14 @@ Optimized PHP Docker images with Apache Event MPM and PHP-FPM for high-performan
 ```
 Container
     |
-    +-- Supervisor (root)
+    +-- S6 Overlay
             |
-            +-- PHP-FPM (priority 10)
+            +-- PHP-FPM
             |       |
             |       +-- Pool [www] (user: inr)
             |       +-- Socket: /var/run/php/php-fpm.sock
             |
-            +-- Apache Event MPM (priority 20)
+            +-- Apache Event MPM
                     |
                     +-- proxy_fcgi -> PHP-FPM socket
 ```
@@ -70,7 +70,15 @@ For GET and HEAD requests ending in CSS, JavaScript, common image or font extens
 
 Normal application routes, query strings containing filenames, XML, JSON, text, PDF and ICO URLs are not blocked. WordPress REST routes under `/wp-json` are excluded by default. POST and other request methods keep their existing behavior. Front controllers with another name, such as `app.php`, are not intercepted.
 
-If an application generates an image or stylesheet through `index.php`, exclude its URL prefix. For example, `APACHE_STATIC_404_EXCLUDE='/wp-json(?:/|[? ])|/generated/'` preserves `/generated/chart.png` and the WordPress REST API. The expression is inserted into an Apache regular expression delimited by `#`; do not include that delimiter or double quotes. Set `APACHE_STATIC_404=false` for applications that need unrestricted static-looking routes. Custom virtual hosts must implement their own equivalent routing.
+If an application generates an image or stylesheet through `index.php`, exclude its URL prefix. For example, `APACHE_STATIC_404_EXCLUDE='/wp-json(?:/|[? ])|/generated/'` preserves `/generated/chart.png` and the WordPress REST API. The expression is inserted into an Apache regular expression delimited by `#`; do not include that delimiter or double quotes. Set `APACHE_STATIC_404=false` for applications that need unrestricted static-looking routes. The guard applies globally, including custom virtual hosts. A mounted default virtual host is preserved instead of being overwritten by the template.
+
+### Runtime health
+
+`healthcheck` requests a private Apache listener on `127.0.0.1:9001` and requires PHP-FPM's native `pong` response. Set `INRAGE_HEALTH_PORT` to change this internal port. No port publication is needed. This verifies Apache and PHP-FPM together without loading the application, Redis or the database. S6 supervises the Apache process directly so stopping the service also stops the listener.
+
+Docker runs the check every 30 seconds, with a 90-second startup grace period, a 5-second timeout and three retries. Kubernetes consumers can opt into an exec readiness/startup probe using `healthcheck`; a TCP liveness probe avoids restarting an otherwise responsive container when the FPM pool is temporarily busy.
+
+The WordPress child entrypoint marks command containers so they do not require a web server. Consumers that replace the entrypoint for a long-running CLI command must disable the inherited Docker healthcheck with `--no-healthcheck` or provide a command-specific check.
 
 ### Compression
 

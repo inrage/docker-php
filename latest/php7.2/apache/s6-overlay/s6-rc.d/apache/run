@@ -1,2 +1,3 @@
-#!/command/execlineb -P
-/usr/sbin/apachectl -D FOREGROUND
+#!/bin/sh
+. /etc/apache2/envvars
+exec /usr/sbin/apache2 -D FOREGROUND
