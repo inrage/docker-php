@@ -13,7 +13,7 @@ defaults:
 
 jobs:
   test-static-assets:
-    name: Verify Apache static asset routing
+    name: Verify Apache asset handling
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

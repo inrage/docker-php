@@ -72,6 +72,14 @@ Normal application routes, query strings containing filenames, XML, JSON, text, 
 
 If an application generates an image or stylesheet through `index.php`, exclude its URL prefix. For example, `APACHE_STATIC_404_EXCLUDE='/wp-json(?:/|[? ])|/generated/'` preserves `/generated/chart.png` and the WordPress REST API. The expression is inserted into an Apache regular expression delimited by `#`; do not include that delimiter or double quotes. Set `APACHE_STATIC_404=false` for applications that need unrestricted static-looking routes. Custom virtual hosts must implement their own equivalent routing.
 
+### Compression
+
+Apache negotiates gzip for SVG and JSON in addition to its existing HTML, CSS, JavaScript, XML and WebAssembly compression. The additional MIME types are configured globally to preserve the inherited filters. Already compressed formats such as WebP are unchanged. Applications can use Apache's `no-gzip` environment flag to disable compression for selected responses.
+
+### Logs
+
+Apache access logs go to stdout and errors go to stderr, without a second access log growing inside the container. The existing access log exclusions for WordPress cron, AJAX and REST requests remain in place. PHP-FPM keeps its own access and worker output on stderr.
+
 ### PHP-FPM Pool
 
 | Variable | Default | Description |
@@ -87,10 +95,10 @@ If an application generates an image or stylesheet through `index.php`, exclude 
 
 | Variable | Default |
 |----------|---------|
-| `PHP_MEMORY_LIMIT` | `512M` |
+| `PHP_MEMORY_LIMIT` | `256M` |
 | `PHP_UPLOAD_MAX_FILESIZE` | `64M` |
 | `PHP_POST_MAX_SIZE` | `64M` |
-| `PHP_MAX_EXECUTION_TIME` | `600` |
+| `PHP_MAX_EXECUTION_TIME` | `60` |
 | `PHP_DEFAULT_SOCKET_TIMEOUT` | `60` |
 | `PHP_SENDMAIL_PATH` | `/usr/bin/msmtp -t --read-envelope-from` |
 | `PHP_ERROR_REPORTING` | |
@@ -107,10 +115,11 @@ If an application generates an image or stylesheet through `index.php`, exclude 
 
 | Variable | Default |
 |----------|---------|
-| `PHP_OPCACHE_MEMORY_CONSUMPTION` | `128` |
+| `PHP_OPCACHE_MEMORY_CONSUMPTION` | `640` |
 | `PHP_OPCACHE_INTERNED_STRINGS_BUFFER` | `8` |
-| `PHP_OPCACHE_MAX_ACCELERATED_FILES` | `4000` |
-| `PHP_OPCACHE_REVALIDATE_FREQ` | `2` |
+| `PHP_OPCACHE_MAX_ACCELERATED_FILES` | `100000` |
+| `PHP_OPCACHE_VALIDATE_TIMESTAMPS` | `0` |
+| `PHP_OPCACHE_REVALIDATE_FREQ` | `30` |
 
 ### MSMTP (Mail)
 

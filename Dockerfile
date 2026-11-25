@@ -287,6 +287,7 @@ RUN set -eux; \
   wget -qO- "${gotpl_url}" | tar xz --no-same-owner -C /usr/local/bin;
 
 {{ if env.variant == "apache" then ( -}}
+COPY templates/docker-apache-compression.conf /etc/apache2/conf-enabled/inrage-compression.conf
 COPY s6-overlay/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
 COPY s6-overlay/scripts/ /etc/s6-overlay/scripts/
 RUN chmod +x /etc/s6-overlay/scripts/* && \

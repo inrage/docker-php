@@ -3,9 +3,6 @@
     DocumentRoot {{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}
     ServerName default
 
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-
     <Directory "{{ getenv "APACHE_VHOST_DIR" "/var/www/html" }}">
         AllowOverride All
         Options -Indexes +FollowSymLinks -MultiViews
